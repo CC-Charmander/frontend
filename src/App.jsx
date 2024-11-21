@@ -1,14 +1,21 @@
-import { useState } from 'react'
+import { useState } from "react";
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 // import './App.css'
-import './assets/css/common.css'
+import "./assets/css/common.css";
+import { Routes, Route, Link } from "react-router-dom";
+import { Home } from "./pages/Home";
+import { CocktailDetail } from "./pages/CocktailDetail";
 
 function App() {
-
   return (
     <>
-      <header>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/cocktails/:cocktailId" element={<CocktailDetail />} />
+      </Routes>
+
+      {/* <header>
         <div className="menu-icon">
           <span className="bar"></span>
           <span className="bar"></span>
@@ -21,9 +28,9 @@ function App() {
       </header>
       <div>
         <h1>Hello World 2</h1>
-      </div>
+      </div> */}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

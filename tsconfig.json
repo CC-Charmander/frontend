@@ -10,6 +10,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/assets/data/dataFetch.js"],
   "exclude": ["node_modules"]
 }

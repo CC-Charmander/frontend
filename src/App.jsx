@@ -1,19 +1,28 @@
-import { useState } from "react";
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 // import './App.css'
 import "./assets/css/common.css";
-import { Routes, Route, Link } from "react-router-dom";
-import { Home } from "./pages/Home";
+import { Routes, Route } from "react-router-dom";
 import { CocktailDetail } from "./pages/CocktailDetail";
+import { Home } from "./pages/Home";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 function App() {
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/cocktails/:cocktailId" element={<CocktailDetail />} />
-      </Routes>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cocktails/:cocktailId" element={<CocktailDetail />} />
+        </Routes>
+      </ThemeProvider>
 
       {/* <header>
         <div className="menu-icon">

@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import "../assets/css/cocktail-detail.css";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
+import axios from "axios";
 
-// テスト用のimport
-// import cocktailImage from "../assets/images/Cocktail.png";
 import { useParams } from "react-router-dom";
 
 // src/routes/Home.js
@@ -12,8 +11,36 @@ export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setIsChecked(!isChecked);
+    // try {
+      const getRes = await axios.get('http://localhost:3000/creation_history', {
+        params: {
+          cocktailId: cocktailId,
+          userId: 1
+        }
+      })
+      const isNoData = getRes.data.exists
+      if (getRes.data.exists === 0) {
+        // DBにデータが無かった場合 → データ登録
+        const postRes = await axios.post('http://localhost:3000/creation_history', {
+          user_id: 1,
+          cocktail_id: cocktailId
+        })
+      } else {
+        // DBにデータが有った場合 → データ削除
+        console.log("データが有ったので削除")
+        const deleteRes = await axios.delete('http://localhost:3000/creation_history', {
+          params: {
+            cocktail_id: cocktailId,
+            user_id: 1
+          }
+        })
+      }
+
+    // } catch (err) {
+    //   console.error("creation history 関連でエラーが発生", err.response)
+    // }
   };
 
   useEffect(() => {

@@ -1,9 +1,18 @@
-import { Box, CircularProgress, IconButton, ImageList, ImageListItem, ImageListItemBar, Paper } from "@mui/material";
-import InputBase from "@mui/material/InputBase";
+import {
+  Autocomplete,
+  Box,
+  CircularProgress,
+  IconButton,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
+  Paper,
+  TextField,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
-import Grid from "@mui/material/Grid2";
+import ingredients from "../assets/data/ingredients_jp_unique.json";
 
 type RawCocktail = {
   [key: string]: any;
@@ -98,40 +107,71 @@ function transformToCocktail(rawData: any): Cocktail {
 export const Home = () => {
   const [cocktails, setCocktails] = useState<Cocktail[]>();
   useEffect(() => {
-    fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a")
-      .then((res) => res.json())
-      .then((data) => setCocktails((data.drinks as RawCocktail).map((drink) => transformToCocktail(drink))));
+    const fetchData = async () => {
+      const data = await import("../assets/data/cocktails_filtered.json");
+      setCocktails((data.cocktails as RawCocktail).map((drink) => transformToCocktail(drink)));
+    };
+    fetchData();
   }, []);
+
   return (
-    <Box sx={{ width: "100vw", padding: 2 }}>
-      {cocktails === undefined ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <Paper component="form" sx={{ p: "2px 4px", display: "flex", alignItems: "center", width: "100%" }}>
-            <IconButton sx={{ p: "10px" }} aria-label="menu">
-              <MenuIcon />
-            </IconButton>
-            <InputBase sx={{ ml: 1, flex: 1 }} placeholder="検索" inputProps={{ "aria-label": "検索" }} />
-            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
-              <SearchIcon />
-            </IconButton>
-          </Paper>
-          <ImageList>
-            {cocktails.map((cocktail) => (
-              <ImageListItem key={cocktail.idDrink}>
-                <img
-                  src={cocktail.strDrinkThumb || ""}
-                  loading="lazy"
-                  alt={cocktail.strDrink}
-                  style={{ borderRadius: "6px" }}
-                />
-                <ImageListItemBar title={cocktail.strDrink} subtitle="ポエポエポエム" position="below" />
-              </ImageListItem>
-            ))}
-          </ImageList>
-        </>
-      )}
-    </Box>
+    <>
+      <header
+        className="glass"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          zIndex: 1200,
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          WebkitBackdropFilter: "blur(20px)",
+          backdropFilter: "blur(20px)",
+        }}
+      >
+        <Paper
+          component="form"
+          sx={{
+            p: "2px 4px",
+            display: "flex",
+            alignItems: "center",
+            width: "100%", // headerに合わせる
+          }}
+        >
+          <IconButton sx={{ p: "10px" }} aria-label="menu">
+            <MenuIcon />
+          </IconButton>
+          <Autocomplete
+            options={ingredients}
+            sx={{ flex: 1 }}
+            renderInput={(params) => <TextField {...params} placeholder="ベースのお酒で検索" variant="standard" />}
+          />
+          <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
+            <SearchIcon />
+          </IconButton>
+        </Paper>
+      </header>
+      <Box sx={{ width: "100vw", padding: 2 }}>
+        {cocktails === undefined ? (
+          <CircularProgress />
+        ) : (
+          <>
+            <ImageList cols={2} sx={{ marginTop: "64px" }}>
+              {cocktails.map((cocktail) => (
+                <ImageListItem key={cocktail.idDrink} sx={{ width: "45.5vw" }}>
+                  <img
+                    src={cocktail.strDrinkThumb || ""}
+                    loading="lazy"
+                    alt={cocktail.strDrink}
+                    style={{ borderRadius: "6px", width: "45.5vw" }}
+                  />
+                  <ImageListItemBar title={cocktail.strDrink} subtitle="ポエポエポエム" position="below" />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          </>
+        )}
+      </Box>
+    </>
   );
 };

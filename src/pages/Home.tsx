@@ -13,6 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
+import { useNavigate } from "react-router-dom";
 
 export type Cocktail = {
   idDrink: string;
@@ -33,6 +34,8 @@ export const Home = () => {
   const [inputValue, setInputValue] = useState("");
   const [searchValue, setSearchValue] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,7 +129,17 @@ export const Home = () => {
                     return cocktail.ingredients.includes(searchValue);
                   })
                   .map((cocktail) => (
-                    <ImageListItem key={cocktail.idDrink} sx={{ width: "45.5vw" }}>
+                    <ImageListItem
+                      key={cocktail.idDrink}
+                      sx={{
+                        width: "45.5vw",
+                        cursor: "pointer", // ポインタを指カーソルに変更
+                        "&:hover": {
+                          opacity: 0.8, // ホバー時に視覚効果を追加（任意）
+                        },
+                      }}
+                      onClick={() => navigate(`/cocktails/${cocktail.idDrink}`)}
+                    >
                       <img
                         src={cocktail.strDrinkThumb || ""}
                         loading="lazy"

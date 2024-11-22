@@ -1,0 +1,58 @@
+.detail-cocktail-image {
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .detail-cocktail-image {
+    width: 600px;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+.cocktail-header {
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .cocktail-header {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.detail-cocktail-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-left: 10px;
+}
+
+.ingredients {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.ingredients h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.ingredients ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.ingredients ul li {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.ingredients li {
+  border-bottom: 1px dashed white;
+  padding-bottom: 5px; /* 破線と文字との間に余白を追加 */
+  margin-bottom: 5px; /* 各リストアイテムの下に余白を追加 */
+}

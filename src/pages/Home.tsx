@@ -14,7 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
 
-type Cocktail = {
+export type Cocktail = {
   idDrink: string;
   strDrink: string;
   strTags: string | null;

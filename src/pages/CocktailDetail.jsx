@@ -6,6 +6,9 @@ import axios from "axios";
 
 import { useParams } from "react-router-dom";
 
+//環境変数ファイルよりAPIエンドポイントセット
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // src/routes/Home.js
 export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
@@ -14,7 +17,7 @@ export const CocktailDetail = () => {
   const handleClick = async () => {
     setIsChecked(!isChecked);
     try {
-      const getRes = await axios.get("http://localhost:3000/creation_history", {
+      const getRes = await axios.get(`${BASE_URL}/creation_history`, {
         params: {
           cocktailId: cocktailId,
           userId: 1,
@@ -22,27 +25,21 @@ export const CocktailDetail = () => {
       });
       if (getRes.data.exists === 0) {
         // DBにデータが無かった場合 → データ登録
-        const postRes = await axios.post(
-          "http://localhost:3000/creation_history",
-          {
-            user_id: 1,
-            cocktail_id: cocktailId,
-          }
-        );
+        const postRes = await axios.post(`${BASE_URL}/creation_history`, {
+          user_id: 1,
+          cocktail_id: cocktailId,
+        });
       } else {
         // DBにデータが有った場合 → データ削除
-        const deleteRes = await axios.delete(
-          "http://localhost:3000/creation_history",
-          {
-            params: {
-              cocktail_id: cocktailId,
-              user_id: 1,
-            },
-          }
-        );
+        const deleteRes = await axios.delete(`${BASE_URL}/creation_history`, {
+          params: {
+            cocktail_id: cocktailId,
+            user_id: 1,
+          },
+        });
       }
     } catch (err) {
-      console.error("creation history 関連でエラーが発生", err.response);
+      console.error("creation history 関連でエラーが発生", err);
     }
   };
 
@@ -68,15 +65,12 @@ export const CocktailDetail = () => {
   useEffect(() => {
     const initialData = async () => {
       try {
-        const getRes = await axios.get(
-          "http://localhost:3000/creation_history",
-          {
-            params: {
-              cocktailId: cocktailId,
-              userId: 1,
-            },
-          }
-        );
+        const getRes = await axios.get(`${BASE_URL}/creation_history`, {
+          params: {
+            cocktailId: cocktailId,
+            userId: 1,
+          },
+        });
         if (getRes.data.exists === 0) {
           // DBにデータが無かった場合 → データ登録
           setIsChecked(false);
@@ -85,7 +79,7 @@ export const CocktailDetail = () => {
           setIsChecked(true);
         }
       } catch (err) {
-        console.error("creation history 関連でエラーが発生", err.response);
+        console.error("creation history 関連でエラーが発生", err);
       }
     };
     initialData();

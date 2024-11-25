@@ -48,7 +48,7 @@ export const CocktailDetail = () => {
     try {
       if (cocktail.length !== 0) {
         const reqData = cocktail[0].ingredients
-        const getRes = await axios.get(`${REC_BASE_URL}/creation_history`, {
+        const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
           params: {
             ingredients: reqData,
           },
@@ -84,7 +84,7 @@ export const CocktailDetail = () => {
   useEffect(() => {
     const initialData = async () => {
       try {
-        const getRes = await axios.get(`${BASE_URL}/api/snack`, {
+        const getRes = await axios.get(`${BASE_URL}/creation_history`, {
           params: {
             cocktailId: cocktailId,
             userId: 1,

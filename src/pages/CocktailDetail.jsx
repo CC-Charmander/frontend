@@ -14,7 +14,6 @@ const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
-  const [ingredients, setIngredients] = useState([]);
 
   const handleClick = async () => {
     setIsChecked(!isChecked);
@@ -54,6 +53,7 @@ export const CocktailDetail = () => {
             ingredients: reqData,
           },
         });
+        console.log(getRes)
   
         // console.log(reqData)
       }

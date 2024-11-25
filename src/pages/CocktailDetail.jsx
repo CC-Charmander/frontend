@@ -14,6 +14,7 @@ const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
+  const [aiComments, setAiComments] = useState(null);
 
   const handleClick = async () => {
     setIsChecked(!isChecked);
@@ -44,18 +45,21 @@ export const CocktailDetail = () => {
     }
   };
 
-  const setAiComment = async (cocktail) => {
+  const getAiComment = async (cocktail) => {
     try {
       if (cocktail.length !== 0) {
         const reqData = cocktail[0].ingredients
-        const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
-          params: {
-            ingredients: reqData,
-          },
-        });
-        console.log(getRes)
-  
-        // console.log(reqData)
+
+        // flaskの/api/testを叩くコード
+        // const getRes = await axios.get(`http://cocktify-recommend.us-east-1.elasticbeanstalk.com/api/test`);
+
+        // flaskの/api/snackを叩くコード
+        // const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
+        //   params: {
+        //     ingredients: reqData,
+        //   },
+        // });
+        // setAiComments(getRes.data)
       }
     } catch (err) {
       console.error("setAiComment 関連でエラーが発生", err);
@@ -111,8 +115,10 @@ export const CocktailDetail = () => {
   );
 
   useEffect(() => {
-    setAiComment(cocktail);
-  }, [cocktail])
+    if (cocktail.length > 0) {
+      getAiComment(cocktail);
+    }
+  }, [cocktails])
 
   return (
     <>
@@ -151,7 +157,11 @@ export const CocktailDetail = () => {
           </div>
           <div className="ingredients">
             <h2>バーテンダーから一言</h2>
-            <p>このカクテルに合うおつまみは柿の種です。良ければどうぞ！</p>
+            {aiComments === null ? (
+              <p>考え中です・・・</p>
+            ) : (
+              <p>{aiComments}</p>
+            )}
           </div>
         </>
       )}

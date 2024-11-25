@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 
 //環境変数ファイルよりAPIエンドポイントセット
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 
 // src/routes/Home.js
 export const CocktailDetail = () => {
@@ -40,6 +41,24 @@ export const CocktailDetail = () => {
       }
     } catch (err) {
       console.error("creation history 関連でエラーが発生", err);
+    }
+  };
+
+  const setAiComment = async (cocktail) => {
+    try {
+      if (cocktail.length !== 0) {
+        const reqData = cocktail[0].ingredients
+        const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
+          params: {
+            ingredients: reqData,
+          },
+        });
+        console.log(getRes)
+  
+        // console.log(reqData)
+      }
+    } catch (err) {
+      console.error("setAiComment 関連でエラーが発生", err);
     }
   };
 
@@ -91,6 +110,10 @@ export const CocktailDetail = () => {
     (cocktail) => cocktail.idDrink === cocktailId
   );
 
+  useEffect(() => {
+    setAiComment(cocktail);
+  }, [cocktail])
+
   return (
     <>
       {cocktail.length === 0 ? (
@@ -125,6 +148,10 @@ export const CocktailDetail = () => {
                 </li>
               ))}
             </ul>
+          </div>
+          <div className="ingredients">
+            <h2>バーテンダーから一言</h2>
+            <p>このカクテルに合うおつまみは柿の種です。良ければどうぞ！</p>
           </div>
         </>
       )}

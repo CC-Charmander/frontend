@@ -95,16 +95,16 @@ export const Home = () => {
             width: "100%",
           }}
         >
-          <IconButton sx={{ p: "10px" }} aria-label="menu">
+          {/* <IconButton sx={{ p: "10px" }} aria-label="menu">
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
           <Autocomplete
             onInputChange={(event, newValue) => {
               setInputValue(newValue);
               setError(null);
             }}
             options={ingredients}
-            sx={{ flex: 1 }}
+            sx={{ flex: 1, marginLeft: 2 }}
             renderInput={(params) => (
               <TextField
                 {...params}

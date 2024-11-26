@@ -144,98 +144,99 @@ export const PostCocktail = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <Stack padding={4}>
-        <Typography gutterBottom marginTop="76px">
-          画像
-        </Typography>
-        {selectedImage && (
-          <img
-            src={selectedImage}
-            alt="選択された画像"
-            style={{
-              maxWidth: "100%",
-              height: "auto",
-              borderRadius: "8px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              marginBottom: "12px",
-            }}
-          />
-        )}
-        <Button component="label" role={undefined} variant="text" tabIndex={-1} startIcon={<CloudUploadIcon />}>
-          画像を選択する
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            multiple={false}
-            style={{ display: "none" }} // 隠す
-          />
-        </Button>
-
-        <Typography gutterBottom marginTop={4}>
-          カクテル名
-        </Typography>
-        <TextField variant="outlined" placeholder=""></TextField>
-        <Typography gutterBottom marginTop={4}>
-          材料
-        </Typography>
-        <Stack direction="row" alignItems="center">
-          <Autocomplete
-            value={inputIngredient}
-            onInputChange={(event, newValue) => {
-              setInputIngredient(newValue);
-              setIngredientError(null);
-            }}
-            options={ingredients}
-            sx={{ flex: 1 }}
-            renderInput={(params) => (
-              <TextField {...params} placeholder="原材料" error={!!ingredientError} helperText={ingredientError} />
-            )}
-          />
-        </Stack>
-        <Stack sx={{ marginTop: "12px" }} direction="row">
-          <span style={{ margin: "12px", fontSize: "20px" }}>&gt;</span>
-          <TextField
-            variant="outlined"
-            placeholder="数量"
-            sx={{
-              width: "90px",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "4px 0 0 4px",
-              },
-            }}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            error={!!amountError}
-            helperText={amountError}
-          />
-          <Autocomplete
-            freeSolo // 選択肢以外も入力可能にする
-            onInputChange={(event, newValue) => {
-              setUnit(newValue);
-              setUnitError(null);
-            }}
-            value={unit}
-            options={measures}
-            sx={{
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "0 4px 4px 0",
-              },
-            }}
-            renderInput={(params) => (
-              <TextField {...params} placeholder="単位" error={!!unitError} helperText={unitError} />
-            )}
-          />
-        </Stack>
-        <Button sx={{ width: "120px", margin: "0 auto", marginTop: "12px" }} onClick={addIngredient}>
-          材料を追加
-        </Button>
-        <Stack spacing={1} marginTop={2} marginBottom={6}>
-          {txIngredients.map((ing, i) => (
-            <Chip label={`${ing}: ${txMeasures[i]}`} onDelete={() => handleDelete(i)} key={i} />
-          ))}
-        </Stack>
+      <Stack padding={2} marginBottom="68px">
+        <Card sx={{ marginTop: "76px", padding: "24px", borderRadius: "16px" }}>
+          <Typography gutterBottom>画像</Typography>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="選択された画像"
+              style={{
+                width: "100%",
+                height: "auto",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                marginBottom: "12px",
+              }}
+            />
+          )}
+          <Button component="label" role={undefined} variant="text" tabIndex={-1} startIcon={<CloudUploadIcon />}>
+            画像を選択する
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              multiple={false}
+              style={{ display: "none" }} // 隠す
+            />
+          </Button>
+        </Card>
+        <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
+          <Typography gutterBottom>カクテル名</Typography>
+          <TextField variant="outlined" placeholder="" fullWidth></TextField>
+        </Card>
+        <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
+          <Typography gutterBottom>材料</Typography>
+          <Stack direction="row" alignItems="center">
+            <Autocomplete
+              value={inputIngredient}
+              onInputChange={(event, newValue) => {
+                setInputIngredient(newValue);
+                setIngredientError(null);
+              }}
+              options={ingredients}
+              sx={{ flex: 1 }}
+              renderInput={(params) => (
+                <TextField {...params} placeholder="原材料" error={!!ingredientError} helperText={ingredientError} />
+              )}
+            />
+          </Stack>
+          <Stack sx={{ marginTop: "12px" }} direction="row">
+            <span style={{ margin: "12px", fontSize: "20px" }}>&gt;</span>
+            <TextField
+              variant="outlined"
+              placeholder="数量"
+              sx={{
+                width: "90px",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "4px 0 0 4px",
+                },
+              }}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              error={!!amountError}
+              helperText={amountError}
+            />
+            <Autocomplete
+              freeSolo // 選択肢以外も入力可能にする
+              onInputChange={(event, newValue) => {
+                setUnit(newValue);
+                setUnitError(null);
+              }}
+              value={unit}
+              options={measures}
+              sx={{
+                flex: 1,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "0 4px 4px 0",
+                },
+              }}
+              renderInput={(params) => (
+                <TextField {...params} placeholder="単位" error={!!unitError} helperText={unitError} />
+              )}
+            />
+          </Stack>
+          <Button sx={{ width: "120px", margin: "0 auto", marginTop: "12px" }} onClick={addIngredient}>
+            材料を追加
+          </Button>
+          {txIngredients.length !== 0 && (
+            <Stack spacing={1} marginTop={2}>
+              {txIngredients.map((ing, i) => (
+                <Chip label={`${ing}: ${txMeasures[i]}`} onDelete={() => handleDelete(i)} key={i} />
+              ))}
+            </Stack>
+          )}
+        </Card>
       </Stack>
       <Box
         component={Card}

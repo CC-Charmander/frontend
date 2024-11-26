@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
 import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
+import axios from "axios";
 
 export type Cocktail = {
   idDrink: string;
@@ -39,11 +40,14 @@ export const Home = () => {
 
   const navigate = useNavigate();
 
+  //環境変数ファイルよりAPIエンドポイントセット
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const module = await import("../assets/data/cocktails_jp.json");
-        const data = module.default;
+        const allRecipes = await axios.get(`${BASE_URL}/recipes`);
+        const data = allRecipes.data;
         if (Array.isArray(data)) {
           setCocktails(data); // 配列ならそのまま設定
         } else {
@@ -115,7 +119,12 @@ export const Home = () => {
               />
             )}
           />
-          <IconButton type="button" sx={{ p: "10px" }} aria-label="search" onClick={search}>
+          <IconButton
+            type="button"
+            sx={{ p: "10px" }}
+            aria-label="search"
+            onClick={search}
+          >
             <SearchIcon />
           </IconButton>
         </Paper>
@@ -152,7 +161,11 @@ export const Home = () => {
                         alt={cocktail.strDrink}
                         style={{ borderRadius: "6px", width: "45.5vw" }}
                       />
-                      <ImageListItemBar title={cocktail.strDrink} subtitle="ポエポエポエム" position="below" />
+                      <ImageListItemBar
+                        title={cocktail.strDrink}
+                        subtitle="ポエポエポエム"
+                        position="below"
+                      />
                     </ImageListItem>
                   ))
               ) : (

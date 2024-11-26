@@ -18,6 +18,7 @@ const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
+  const [aiComments, setAiComments] = useState(null);
 
   const navigate = useNavigate();
 
@@ -50,21 +51,42 @@ export const CocktailDetail = () => {
     }
   };
 
-  const setAiComment = async (cocktail) => {
+  const getAiComment = async (cocktail) => {
     try {
       if (cocktail.length !== 0) {
-        const reqData = cocktail[0].ingredients;
-        const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
+        const reqData = JSON.stringify(cocktail[0].ingredients)
+
+        console.log(reqData)
+
+        // flaskの/api/testを叩くコード
+        // const getTestRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/test`);
+        // console.log(getTestRes.data)
+
+        // flaskの/api/snackを叩くコード（引数無し）
+        // const getSnackRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack/test`);
+        // console.log(getSnackRes.data)
+
+        // ↓引数ありバージョン
+        const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
           params: {
             ingredients: reqData,
           },
         });
-        console.log(getRes);
+        console.log(getRes.data)
 
-        // console.log(reqData)
+        // ↓バーテンダーコメントをセット
+        // setAiComments(getSnackRes.data)
+    
+        // console.log(getSnackRes.data)
       }
     } catch (err) {
-      console.error("setAiComment 関連でエラーが発生", err);
+      console.log(err.response.status)
+      if(err.response.status === 500) {
+        console.log("status500のエラーのため再送")
+        // await getAiComment(cocktail);
+      } else {
+        console.error("setAiComment 関連でエラーが発生", err);
+      }
     }
   };
 
@@ -115,8 +137,10 @@ export const CocktailDetail = () => {
   const cocktail = cocktails.filter((cocktail) => cocktail.idDrink === cocktailId);
 
   useEffect(() => {
-    setAiComment(cocktail);
-  }, [cocktail]);
+    if (cocktail.length > 0) {
+      getAiComment(cocktail);
+    }
+  }, [cocktails])
 
   return (
     <>
@@ -181,7 +205,11 @@ export const CocktailDetail = () => {
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
               <div className="ingredients">
                 <h2>バーテンダーから一言</h2>
-                <p>このカクテルに合うおつまみは柿の種です。良ければどうぞ！</p>
+                {aiComments === null ? (
+                  <p>考え中です・・・</p>
+                ) : (
+                  <p>{aiComments}</p>
+                )}
               </div>
             </Paper>
           </Box>

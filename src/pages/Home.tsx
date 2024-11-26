@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   CircularProgress,
+  Fab,
   IconButton,
   ImageList,
   ImageListItem,
@@ -14,6 +15,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
 import { useNavigate } from "react-router-dom";
+import AddIcon from "@mui/icons-material/Add";
 
 export type Cocktail = {
   idDrink: string;
@@ -63,6 +65,10 @@ export const Home = () => {
     }
     setError(null);
     setSearchValue(inputValue);
+  };
+
+  const postCocktail = () => {
+    navigate("/post");
   };
 
   return (
@@ -156,6 +162,17 @@ export const Home = () => {
           </>
         )}
       </Box>
+      <Fab
+        sx={{
+          position: "fixed", // 画面全体を基準に固定
+          bottom: 24,
+          right: 24,
+          zIndex: 1200, // 必要に応じて、他のコンテンツより上に配置
+        }}
+        onClick={postCocktail}
+      >
+        <AddIcon />
+      </Fab>
     </>
   );
 };

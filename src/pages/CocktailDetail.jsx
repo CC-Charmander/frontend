@@ -48,21 +48,39 @@ export const CocktailDetail = () => {
   const getAiComment = async (cocktail) => {
     try {
       if (cocktail.length !== 0) {
-        const reqData = cocktail[0].ingredients
+        const reqData = JSON.stringify(cocktail[0].ingredients)
+
+        console.log(reqData)
 
         // flaskの/api/testを叩くコード
-        // const getRes = await axios.get(`http://cocktify-recommend.us-east-1.elasticbeanstalk.com/api/test`);
+        // const getTestRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/test`);
+        // console.log(getTestRes.data)
 
-        // flaskの/api/snackを叩くコード
-        // const getRes = await axios.get(`${REC_BASE_URL}/api/snack`, {
-        //   params: {
-        //     ingredients: reqData,
-        //   },
-        // });
-        // setAiComments(getRes.data)
+        // flaskの/api/snackを叩くコード（引数無し）
+        // const getSnackRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack/test`);
+        // console.log(getSnackRes.data)
+
+        // ↓引数ありバージョン
+        const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
+          params: {
+            ingredients: reqData,
+          },
+        });
+        console.log(getRes.data)
+
+        // ↓バーテンダーコメントをセット
+        // setAiComments(getSnackRes.data)
+    
+        // console.log(getSnackRes.data)
       }
     } catch (err) {
-      console.error("setAiComment 関連でエラーが発生", err);
+      console.log(err.response.status)
+      if(err.response.status === 500) {
+        console.log("status500のエラーのため再送")
+        // await getAiComment(cocktail);
+      } else {
+        console.error("setAiComment 関連でエラーが発生", err);
+      }
     }
   };
 

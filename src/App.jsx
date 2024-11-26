@@ -5,6 +5,7 @@ import "./assets/css/common.css";
 import { Routes, Route } from "react-router-dom";
 import { CocktailDetail } from "./pages/CocktailDetail";
 import { Home } from "./pages/Home";
+import { PostCocktail } from "./pages/PostCocktail";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 
 const darkTheme = createTheme({
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cocktails/:cocktailId" element={<CocktailDetail />} />
+          <Route path="/post" element={<PostCocktail />} />
         </Routes>
       </ThemeProvider>
 

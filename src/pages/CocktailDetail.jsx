@@ -5,6 +5,10 @@ import IconButton from "@mui/material/IconButton";
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
+import { AppBar, Box, Paper, Toolbar, Typography } from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 //環境変数ファイルよりAPIエンドポイントセット
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -15,6 +19,8 @@ export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
   const [aiComments, setAiComments] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleClick = async () => {
     setIsChecked(!isChecked);
@@ -128,9 +134,7 @@ export const CocktailDetail = () => {
 
   const { cocktailId } = useParams();
 
-  const cocktail = cocktails.filter(
-    (cocktail) => cocktail.idDrink === cocktailId
-  );
+  const cocktail = cocktails.filter((cocktail) => cocktail.idDrink === cocktailId);
 
   useEffect(() => {
     if (cocktail.length > 0) {
@@ -143,45 +147,73 @@ export const CocktailDetail = () => {
       {cocktail.length === 0 ? (
         <p style={{ marginLeft: "30px" }}>対応するカクテルはありません。</p>
       ) : (
-        <>
-          <div>
-            {/* テスト用に直貼りしてあるが、実際にはObjectから取得する */}
-            <img
-              src={cocktail[0].strDrinkThumb}
-              alt="Cocktail"
-              className="detail-cocktail-image"
-            />
-          </div>
-
-          <div className="cocktail-header">
-            <IconButton onClick={handleClick}>
-              <FavoriteTwoToneIcon
-                sx={{
-                  color: isChecked ? "#ff3366" : "white",
-                }}
+        <div>
+          <AppBar
+            sx={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              width: "100%",
+              zIndex: 1200, // 必要に応じて調整 (AppBarなどと重ならないように)
+            }}
+          >
+            <Toolbar sx={{ width: "100%" }}>
+              <IconButton onClick={() => navigate("/")}>
+                <ArrowBackIcon />
+              </IconButton>
+              <Box flexGrow={1} textAlign="center" marginRight="56px">
+                <Typography>
+                  {/* {cocktail[0].strDrink} */}
+                  カクテルの詳細
+                </Typography>
+              </Box>
+            </Toolbar>
+          </AppBar>
+          <Box padding={2} marginTop={10}>
+            <div>
+              {/* テスト用に直貼りしてあるが、実際にはObjectから取得する */}
+              <img
+                src={cocktail[0].strDrinkThumb}
+                alt="Cocktail"
+                className="detail-cocktail-image"
+                style={{ borderRadius: "8px" }}
               />
-            </IconButton>
-            <h1 className="detail-cocktail-name">{cocktail[0].strDrink}</h1>
-          </div>
-          <div className="ingredients">
-            <h2>材料</h2>
-            <ul>
-              {cocktail[0].ingredients.map((ing, i) => (
-                <li key={ing}>
-                  {ing} {cocktail[0].measures[i]}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="ingredients">
-            <h2>バーテンダーから一言</h2>
-            {aiComments === null ? (
-              <p>考え中です・・・</p>
-            ) : (
-              <p>{aiComments}</p>
-            )}
-          </div>
-        </>
+            </div>
+
+            <div className="cocktail-header">
+              <IconButton onClick={handleClick}>
+                <FavoriteTwoToneIcon
+                  sx={{
+                    color: isChecked ? "#ff3366" : "white",
+                  }}
+                />
+              </IconButton>
+              <h1 className="detail-cocktail-name">{cocktail[0].strDrink}</h1>
+            </div>
+            <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 4 }}>
+              <div className="ingredients">
+                <h2>材料</h2>
+                <ul>
+                  {cocktail[0].ingredients.map((ing, i) => (
+                    <li key={ing}>
+                      {ing} {cocktail[0].measures[i]}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Paper>
+            <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
+              <div className="ingredients">
+                <h2>バーテンダーから一言</h2>
+                {aiComments === null ? (
+                  <p>考え中です・・・</p>
+                ) : (
+                  <p>{aiComments}</p>
+                )}
+              </div>
+            </Paper>
+          </Box>
+        </div>
       )}
     </>
   );

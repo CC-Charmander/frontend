@@ -7,9 +7,6 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      workbox: {
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB に設定
-      },
       registerType: 'autoUpdate',
       manifest: {
         name: 'Cocktify',

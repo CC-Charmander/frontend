@@ -75,7 +75,7 @@ export const CocktailDetail = () => {
         console.log(getRes.data)
 
         // ↓バーテンダーコメントをセット
-        setAiComments(getRes.data)
+        // setAiComments(getSnackRes.data)
     
         // console.log(getSnackRes.data)
       }

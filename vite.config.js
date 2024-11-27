@@ -30,9 +30,6 @@ export default defineConfig({
       }
     })
   ],
-  define: {
-    global: 'window'
-  },
   // server: {
   //   https: true
   // }

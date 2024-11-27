@@ -1,6 +1,7 @@
 import {
   Autocomplete,
   Box,
+  Chip,
   CircularProgress,
   Fab,
   IconButton,
@@ -10,7 +11,6 @@ import {
   Paper,
   TextField,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
@@ -35,6 +35,10 @@ export type Cocktail = {
 export const Home = () => {
   const [cocktails, setCocktails] = useState<Cocktail[] | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [selectedIngredients, setSelectedIngredients] = useState([]); //検索したい材料
+  const [filteredCocktails, setFilteredCocktails] = useState<Cocktail[] | null>(
+    null
+  ); //検索結果
   const [searchValue, setSearchValue] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -50,17 +54,32 @@ export const Home = () => {
         const data = allRecipes.data;
         if (Array.isArray(data)) {
           setCocktails(data); // 配列ならそのまま設定
+          setFilteredCocktails(data); //初期状態では全てのレシピをセットしておく
         } else {
           console.error("Expected an array but got:", data);
           setCocktails([]); // 不正なデータの場合は空配列
+          setFilteredCocktails([]); // 不正なデータの場合は空配列
         }
       } catch (error) {
         console.error("Failed to fetch cocktails data:", error);
         setCocktails([]); // フェッチ失敗時も空配列
+        setFilteredCocktails([]); // フェッチ失敗時も空配列
       }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    // 選択された材料に基づいて絞り込み
+    if (cocktails) {
+      const filtered = cocktails.filter((cocktail) =>
+        selectedIngredients.every((ingredient) =>
+          cocktail.ingredients.includes(ingredient)
+        )
+      );
+      setFilteredCocktails(filtered);
+    }
+  }, [selectedIngredients, cocktails]);
 
   const search = () => {
     if (!ingredients.includes(inputValue)) {
@@ -69,6 +88,13 @@ export const Home = () => {
     }
     setError(null);
     setSearchValue(inputValue);
+  };
+
+  //検索したい材料を選択する
+  const handleIngredientChange = (event, newValue) => {
+    if (newValue.length <= 3) {
+      setSelectedIngredients(newValue);
+    }
   };
 
   const postCocktail = () => {
@@ -99,26 +125,37 @@ export const Home = () => {
             width: "100%",
           }}
         >
-          {/* <IconButton sx={{ p: "10px" }} aria-label="menu">
-            <MenuIcon />
-          </IconButton> */}
           <Autocomplete
-            onInputChange={(event, newValue) => {
-              setInputValue(newValue);
-              setError(null);
-            }}
+            multiple
+            id="ingredients-autocomplete"
             options={ingredients}
-            sx={{ flex: 1, marginLeft: 2 }}
+            forcePopupIcon={false} //ドロップダウンのアイコンを消す
+            disableClearable={true} //テキスト入力欄のクリアボタンを消す
+            value={selectedIngredients}
+            onChange={handleIngredientChange}
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="ベースのお酒で検索"
-                variant="standard"
-                error={!!error}
-                helperText={error}
+                variant="outlined"
+                label="材料を選択（最大3つ）"
               />
             )}
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => {
+                const { key, ...tagProps } = getTagProps({ index });
+                return (
+                  <Chip
+                    key={key}
+                    label={option}
+                    {...tagProps}
+                    style={{ margin: "2px" }}
+                  />
+                );
+              })
+            }
+            sx={{ width: "100%" }}
           />
+
           <IconButton
             type="button"
             sx={{ p: "10px" }}
@@ -135,39 +172,32 @@ export const Home = () => {
         ) : (
           <>
             <ImageList cols={2} sx={{ marginTop: "64px" }}>
-              {cocktails.length > 0 ? (
-                cocktails
-                  .filter((cocktail) => {
-                    if (searchValue === "") {
-                      return true;
-                    }
-                    return cocktail.ingredients.includes(searchValue);
-                  })
-                  .map((cocktail) => (
-                    <ImageListItem
-                      key={cocktail.idDrink}
-                      sx={{
-                        width: "45.5vw",
-                        cursor: "pointer", // ポインタを指カーソルに変更
-                        "&:hover": {
-                          opacity: 0.8, // ホバー時に視覚効果を追加（任意）
-                        },
-                      }}
-                      onClick={() => navigate(`/cocktails/${cocktail.idDrink}`)}
-                    >
-                      <img
-                        src={cocktail.strDrinkThumb || ""}
-                        loading="lazy"
-                        alt={cocktail.strDrink}
-                        style={{ borderRadius: "6px", width: "45.5vw" }}
-                      />
-                      <ImageListItemBar
-                        title={cocktail.strDrink}
-                        subtitle="ポエポエポエム"
-                        position="below"
-                      />
-                    </ImageListItem>
-                  ))
+              {filteredCocktails.length > 0 ? (
+                filteredCocktails.map((cocktail) => (
+                  <ImageListItem
+                    key={cocktail.idDrink}
+                    sx={{
+                      width: "45.5vw",
+                      cursor: "pointer", // ポインタを指カーソルに変更
+                      "&:hover": {
+                        opacity: 0.8, // ホバー時に視覚効果を追加（任意）
+                      },
+                    }}
+                    onClick={() => navigate(`/cocktails/${cocktail.idDrink}`)}
+                  >
+                    <img
+                      src={cocktail.strDrinkThumb || ""}
+                      loading="lazy"
+                      alt={cocktail.strDrink}
+                      style={{ borderRadius: "6px", width: "45.5vw" }}
+                    />
+                    <ImageListItemBar
+                      title={cocktail.strDrink}
+                      subtitle="ポエポエポエム"
+                      position="below"
+                    />
+                  </ImageListItem>
+                ))
               ) : (
                 <p>カクテルが見つかりません。</p>
               )}

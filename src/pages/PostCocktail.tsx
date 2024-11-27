@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   AppBar,
   Autocomplete,
@@ -12,13 +13,53 @@ import {
   TextField,
   Toolbar,
   Typography,
+  Snackbar,
+  Alert
 } from "@mui/material";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
 
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+
+import AWS from "aws-sdk";
+//const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = "http://cocktify.us-east-1.elasticbeanstalk.com" //一旦直書き
+
+const bucketName = "cocktify-images";
+const identityPoolId = "us-east-1:6b60a7c1-762c-4ce0-9446-6a05de461242";
+const region = "us-east-1"
+type Recipe = {
+  idDrink?: string;
+  strDrink: string;
+  strTags?: string;
+  strCategory?: string;
+  strAlcoholic?: string;
+  strGlass?: string;
+  strInstructions?: string;
+  strDrinkThumb: string;
+  strCreativeCommonsConfirmed?: string;
+  dateModified?: Date;
+  ingredients: string[];
+  measures: string[];
+  user_id: number;
+};
+
+
+AWS.config.update({
+  region: region,
+  credentials: new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: identityPoolId,
+  }),
+});
+
+const bucket = new AWS.S3({
+  params: {
+    Bucket: bucketName,
+  },
+});
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -51,10 +92,23 @@ const measures = [
 ];
 
 export const PostCocktail = () => {
+  const [openSnackbar, setOpenSnackbar] = useState(false);  // Snackbarの表示状態
+  const [snackbarMessage, setSnackbarMessage] = useState("");  // Snackbarに表示するメッセージ
+  const [confirmAction, setConfirmAction] = useState<"none" | "submit" | "cancel">("none"); // ユーザーアクションの管理
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);  // 投稿完了スナックバー
+
   const [ingredientError, setIngredientError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [unitError, setUnitError] = useState<string | null>(null);
 
+  // ボタンを押したときのバリデーション
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [txIngredientError, setTxIngredientError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  
+  
+  const [inputTitle, setInputTitle] = useState<string>('');
+  
   const [inputIngredient, setInputIngredient] = useState("");
   const [amount, setAmount] = useState<string>("");
   const [unit, setUnit] = useState<string>("");
@@ -63,6 +117,9 @@ export const PostCocktail = () => {
   const [txMeasures, setTxMeasures] = useState<string[]>([]);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const [isUploading, setIsUploading] = useState(false); 
+
 
   const naviate = useNavigate();
 
@@ -73,6 +130,7 @@ export const PostCocktail = () => {
 
       reader.onload = () => {
         setSelectedImage(reader.result as string);
+        if (imageError) setImageError(null);
       };
 
       reader.readAsDataURL(file); // Base64データとして画像を読み込む
@@ -112,6 +170,7 @@ export const PostCocktail = () => {
       setInputIngredient("");
       setAmount("");
       setUnit("");
+      setTxIngredientError(null);
     }
   };
 
@@ -119,9 +178,125 @@ export const PostCocktail = () => {
     setTxIngredients((prev) => prev.filter((_, j) => j !== i));
     setTxMeasures((prev) => prev.filter((_, j) => j !== i));
   };
+  
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputTitle(event.target.value); // 入力値を状態にセット
+    if (titleError) setTitleError(null);
+  };
 
-  const postCocktail = () => {
-    //TODO:
+  const handleInputIngredientChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+    setInputIngredient(newValue);
+    if (txIngredientError) setTxIngredientError(null); // txIngredientErrorをリセット
+  };
+
+  // BASE64の形式をBLOBに変換する
+  const base64ToBlob = (base64: string, mimeType: string) => {
+    const byteCharacters = atob(base64.split(',')[1]);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const slice = byteCharacters.slice(offset, offset + 1024);
+      const byteNumbers = new Array(slice.length);
+
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: mimeType });
+  };
+
+  const checkValidation = async () => {
+    let hasError = false;
+
+    // カクテル名が入っているかのチェック
+    if (!inputTitle || inputTitle.trim() === '') {
+      setTitleError("カクテル名を入力してください。");
+      hasError = true;
+    }
+
+    // 画像がUpされているかのチェック
+    if (!selectedImage) {
+      setImageError("画像を必ずアップロードしてください。");
+      hasError = true;
+    }
+
+    // 材料が入っているかのチェック
+    if (txIngredients.length === 0) {
+      setTxIngredientError("材料は少なくとも1つ以上選択してください。");
+      hasError = true;
+    }
+
+    if (hasError) {
+      return; // 1つでもエラーがある場合、投稿確認画面に進まずに処理を終了
+    }
+
+    // 以下、投稿確認用のスナックバーを表示
+    setSnackbarMessage('レシピを投稿します。本当によろしいですか。');
+    setConfirmAction("submit");
+    setOpenSnackbar(true);
+  }
+
+  const postCocktail = async () => {
+    if (selectedImage !== null){
+        setIsUploading(true);
+        const mimeType = selectedImage.split(';')[0].split(':')[1];
+        const blob = base64ToBlob(selectedImage, mimeType);
+        const key = `${Date.now()}_${Math.random()}.${mimeType.split('/')[1]}`
+    
+        new Promise((resolve, reject) => {
+          bucket.putObject(
+            {
+              Bucket: bucketName,
+              Key: key,
+              Body: blob,
+              ContentType: mimeType,
+            },
+            (error, data) => {
+              if (error) {
+                console.error("error: ", error);
+                return;
+              }
+              resolve(data);
+            }
+          );
+        });
+        
+        const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`; 
+        
+        // レシピDBへ登録用のオブジェクトを作成
+        const Recipe: Recipe = {
+          strDrink: inputTitle, 
+          strTags: 'test',  // 任意のタグ
+          ingredients: txIngredients,
+          measures: txMeasures,
+          strDrinkThumb: imageUrl,  // 画像URL
+          user_id: 1, // TODO: 仮user_id「1」で固定。ログイン機能実装後に差し替える。
+        };
+
+        try {
+          // レシピ投稿APIへPOSTリクエストを送信
+          await axios.post(BASE_URL + '/recipes', Recipe);
+
+          // 成功した場合、成功を表示するスナックバーを表示
+          setSnackbarMessage('カクテルの投稿が完了しました！');
+          setOpenSnackbar(false);
+          setOpenSuccessSnackbar(true);
+
+          // スナックバー表示のため、インターバルを設ける
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          // ホーム画面に遷移
+          naviate("/")
+
+        } catch (error) {
+          setOpenSnackbar(false);
+          setSnackbarMessage('投稿に失敗しました。再度お試しください。');
+        }
+    }
+
   };
 
   return (
@@ -170,10 +345,15 @@ export const PostCocktail = () => {
               style={{ display: "none" }} // 隠す
             />
           </Button>
+          {imageError && (
+            <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
+              {imageError}
+            </Typography>
+          )}
         </Card>
         <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
           <Typography gutterBottom>カクテル名</Typography>
-          <TextField variant="outlined" placeholder="" fullWidth></TextField>
+          <TextField variant="outlined" placeholder="" fullWidth value={inputTitle} onChange={handleTitleChange} error={!!titleError} helperText={titleError}></TextField>
         </Card>
         <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
           <Typography gutterBottom>材料</Typography>
@@ -183,6 +363,7 @@ export const PostCocktail = () => {
               onInputChange={(event, newValue) => {
                 setInputIngredient(newValue);
                 setIngredientError(null);
+                handleInputIngredientChange;
               }}
               options={ingredients}
               sx={{ flex: 1 }}
@@ -236,6 +417,13 @@ export const PostCocktail = () => {
               ))}
             </Stack>
           )}
+          {/* エラー表示 */}
+          {txIngredientError && (
+            <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
+              {txIngredientError}
+            </Typography>
+          )}
+
         </Card>
       </Stack>
       <Box
@@ -251,10 +439,86 @@ export const PostCocktail = () => {
           borderRadius: 0,
         }}
       >
-        <Button fullWidth onClick={postCocktail} variant="contained">
+        <Button fullWidth onClick={checkValidation} variant="contained">
           シェア
         </Button>
       </Box>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={null}
+        onClose={() => setOpenSnackbar(false)}
+        sx={{
+          position: 'fixed', // 固定表示
+          top: '20px', // 上部からの距離を調整
+          left: '50%', // 中央寄せ
+          transform: 'translateX(-50%)', // 画面の中央に配置
+          zIndex: 1300, // 他の要素との重なり順
+        }}
+      >
+        <Alert
+          severity="info"
+          sx={{
+            width: "auto", // 自動的にコンテンツの幅に合わせる
+            display: "flex",
+            flexDirection: "column", // 縦並びにする
+            padding: 0, // スナックバー内の余白を最小限に
+          }}
+        >
+            <>
+          <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
+          {snackbarMessage}
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+            <Button
+              color="inherit"
+              size="small"
+              onClick={postCocktail}
+              sx={{ flex: 1 }}
+            >
+              OK
+            </Button>
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setConfirmAction("cancel");
+                setOpenSnackbar(false);
+              }}
+              sx={{ flex: 1 }}
+            >
+              NG
+            </Button>
+          </Box>
+          </>
+        </Alert>
+      </Snackbar>
+            {/* 投稿完了スナックバー */}
+            <Snackbar
+        open={openSuccessSnackbar}
+        autoHideDuration={3000}
+        sx={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1300,
+        }}
+      >
+        <Alert
+          severity="success"
+          sx={{
+            width: "auto",
+            display: "flex",
+            flexDirection: "column",
+            padding: 0,
+          }}
+        >
+          {/* 投稿完了メッセージ */}
+          <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
+            カクテルの投稿が完了しました！
+          </Box>
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

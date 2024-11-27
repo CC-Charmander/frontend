@@ -4,6 +4,23 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    // チャンクサイズ警告の閾値を変更
+    chunkSizeWarningLimit: 5000,  // 例えば、2MBに設定。デフォルトは500KB
+
+    // 手動でチャンクを分割する設定
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // node_modules 以下のライブラリを 'vendor' チャンクにまとめる
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+          // 他にも分割したいライブラリがあれば、ここで条件を追加できます
+        }
+      }
+    }
+  },
   plugins: [
     react(),
     VitePWA({
@@ -30,6 +47,9 @@ export default defineConfig({
       }
     })
   ],
+  define: {
+    'global': 'window',  // ブラウザ環境で `global` を `window` に設定
+  },
   // server: {
   //   https: true
   // }

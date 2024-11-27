@@ -17,6 +17,9 @@ export default defineConfig({
             return 'vendor';
           }
           // 他にも分割したいライブラリがあれば、ここで条件を追加できます
+          if (id.includes('path/to/large/module')) {
+            return 'largeModule'; // 特定の大きなモジュールを分割
+          }
         }
       }
     }

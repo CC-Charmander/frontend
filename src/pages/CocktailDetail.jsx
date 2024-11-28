@@ -138,7 +138,7 @@ export const CocktailDetail = () => {
     } catch (err) {
       console.log(err.response.status);
       if (err.response.status === 500) {
-        setAiComments("...すみません聞き取れませんでした");
+        //setAiComments("...すみません聞き取れませんでした");
       } else {
         console.error("setAiComment 関連でエラーが発生", err);
       }
@@ -329,13 +329,30 @@ export const CocktailDetail = () => {
               </div>
             </Paper>
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
-              <div className="ingredients">
-                <h2>バーテンダーから一言</h2>
-                {aiComments === null ? (
-                  <p>考え中です・・・</p>
-                ) : (
-                  <p>{aiComments}</p>
-                )}
+              <div className="ingredients" style={{ display: "flex", alignItems: "center" }}>
+                {/* 1列目: 画像 */}
+                <div style={{ marginRight: "16px" }}>
+                  <img
+                    src="../../public/icons/bartender.png" // 画像のパスを指定
+                    alt="bartender"
+                    style={{
+                      width: "120px", // 画像のサイズ
+                      height: "120px", // 画像のサイズ
+                      borderRadius: "15%", // 円形にする場合
+                      objectFit: "cover", // 画像が枠内に収まるように調整
+                    }}
+                  />
+                </div>
+
+                {/* 2列目: タイトルとテキスト */}
+                <div style={{ flex: 1 }}>
+                  <h2>バーテンダーから一言</h2>
+                  {aiComments === null ? (
+                    <p>考え中です・・・</p>
+                  ) : (
+                    <p>{aiComments}</p>
+                  )}
+                </div>
               </div>
             </Paper>
           </Box>

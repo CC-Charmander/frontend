@@ -24,13 +24,46 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
-// import AWS from "aws-sdk";
+import { S3Client } from "@aws-sdk/client-s3";
+import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
+import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// const bucketName = "cocktify-images";
-// const identityPoolId = "us-east-1:6b60a7c1-762c-4ce0-9446-6a05de461242";
-// const maxPhotosFromBucket = 125;
-// const region = "us-east-1"
+const bucketName = "cocktify-images";
+const identityPoolId = "us-east-1:6b60a7c1-762c-4ce0-9446-6a05de461242";
+const maxPhotosFromBucket = 125;
+const region = "us-east-1"
+
+// AWS.config.update({
+//   region: region,
+//   credentials: new AWS.CognitoIdentityCredentials({
+//     IdentityPoolId: identityPoolId,
+//   }),
+// });
+
+// const credentials = fromCognitoIdentityPool({
+//   client: new CognitoIdentityClient({ region }), // CognitoIdentityClientのインスタンスを作成
+//   identityPoolId, // Cognito Identity Pool ID
+// });
+
+// const bucket = new AWS.S3({
+//   params: {
+//     Bucket: bucketName,
+//   },
+// });
+
+// const s3 = new S3({
+//   region: 'ap-northeast-1'
+// });
+
+// const s3Client = new S3Client({
+//   region,
+//   credentials, // Cognito Identity Pool から取得した認証情報を渡す
+// });
+
+
 
 type Recipe = {
   idDrink?: string;
@@ -48,19 +81,6 @@ type Recipe = {
   user_id: number;
 };
 
-
-// AWS.config.update({
-//   region: region,
-//   credentials: new AWS.CognitoIdentityCredentials({
-//     IdentityPoolId: identityPoolId,
-//   }),
-// });
-
-// const bucket = new AWS.S3({
-//   params: {
-//     Bucket: bucketName,
-//   },
-// });
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -267,7 +287,7 @@ export const PostCocktail = () => {
         // });
         
         // const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`; 
-        const imageUrl = `hogehoge`; 
+        const imageUrl = `https://cocktify-images.s3.us-east-1.amazonaws.com/Cocktail1.jpg`; 
         
         // レシピDBへ登録用のオブジェクトを作成
         const Recipe: Recipe = {

@@ -3,6 +3,8 @@ import "../assets/css/cocktail-detail.css";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Tooltip from '@mui/material/Tooltip';
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
@@ -323,7 +325,23 @@ export const CocktailDetail = () => {
             </div>
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 4 }}>
               <div className="ingredients">
-                <h2>材料</h2>
+                <div className="ingredients-title">
+                  <h2>材料</h2>
+                  <IconButton
+                    sx={{
+                      marginTop: '17px',
+                      width: '30px',
+                      height: '30px'
+                    }}
+                  >
+                    <HelpOutlineIcon
+                      sx={{
+                        fontSize: '1rem',
+                      }}
+                    />
+                  </IconButton>
+                </div>
+                {/* <h2>材料</h2> */}
                 <ul>
                   {cocktail[0].ingredients.map((ing, i) => (
                     <li key={ing}>

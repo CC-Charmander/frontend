@@ -57,3 +57,11 @@
   padding-bottom: 5px; /* 破線と文字との間に余白を追加 */
   margin-bottom: 5px; /* 各リストアイテムの下に余白を追加 */
 }
+
+.ingredients-title {
+  display: inline-flex;
+}
+
+.test {
+  background-color: aqua;
+}

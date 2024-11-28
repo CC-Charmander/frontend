@@ -10,6 +10,8 @@ import {
   ImageListItemBar,
   Paper,
   TextField,
+  Card,
+  CardContent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
@@ -19,6 +21,13 @@ import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
+interface MyCardProps {
+  title: string;
+  description: string;
+  opacity: number; // 透明度のプロパティ
+}
+
 
 export type Cocktail = {
   idDrink: string;
@@ -178,48 +187,61 @@ export const Home = () => {
             <ImageList cols={2} sx={{ marginTop: "84px" }}>
               {filteredCocktails !== null && filteredCocktails.length > 0 ? (
                 filteredCocktails.map((cocktail) => (
-                  <ImageListItem
-                    key={cocktail.idDrink}
-                    sx={{
-                      width: "45.5vw",
+                    <Card sx={{ maxWidth: "100%", opacity: 1, margin: '5px', width: "100%",
                       cursor: "pointer", // ポインタを指カーソルに変更
                       "&:hover": {
-                        opacity: 0.8, // ホバー時に視覚効果を追加（任意）
-                      },
-                    }}
-                    onClick={() => navigate(`/cocktails/${cocktail.idDrink}`)}
-                  >
-                    <img
-                      src={cocktail.strDrinkThumb || ""}
-                      loading="lazy"
-                      alt={cocktail.strDrink}
-                      style={{ borderRadius: "6px", width: "45.5vw" }}
-                    />
-                    {createdCocktailsSet.has(parseInt(cocktail.idDrink)) && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: "calc(100% - 54px)",
-                          display: "flex",
-                          alignItems: "flex-end", // 下に揃える
-                          justifyContent: "flex-end", // 右に揃える
-                          color: "white",
-                          fontSize: "2rem",
-                          fontWeight: "bold",
-                          textShadow: "0 0 5px black",
-                          backgroundColor: "rgba(0, 0, 0, 0.5)",
-                          borderRadius: "6px",
-                          padding: "10px", // アイコンに余白を追加
-                        }}
-                      >
-                        <CheckCircleIcon /> {/* 必要に応じてアイコンサイズを変更 */}
-                      </div>
-                    )}
-                    <ImageListItemBar title={cocktail.strDrink} position="below" />
-                  </ImageListItem>
+                        opacity: 0.8,
+                         // ホバー時に視覚効果を追加（任意）
+                      }, }}>
+                    <ImageListItem
+                      key={cocktail.idDrink}
+                      sx={{
+                        width: "45.5vw",
+                        cursor: "pointer", // ポインタを指カーソルに変更
+                        "&:hover": {
+                          opacity: 0.8, // ホバー時に視覚効果を追加（任意）
+                        },
+                      }}
+                      onClick={() => navigate(`/cocktails/${cocktail.idDrink}`)}
+                    >
+                      <img
+                        src={cocktail.strDrinkThumb || ""}
+                        loading="lazy"
+                        alt={cocktail.strDrink}
+                        style={{ borderRadius: "6px", width: "auto", margin: "10px", boxShadow: '10px 10px 15px rgba(0, 0, 0, 0.5)', }}
+                      />
+                      {createdCocktailsSet.has(parseInt(cocktail.idDrink)) && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "calc(100% - 54px)",
+                            display: "flex",
+                            alignItems: "flex-end", // 下に揃える
+                            justifyContent: "flex-end", // 右に揃える
+                            color: "white",
+                            fontSize: "2rem",
+                            fontWeight: "bold",
+                            textShadow: "0 0 5px black",
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            borderRadius: "6px",
+                            padding: "10px", // アイコンに余白を追加
+                          }}
+                        >
+                          <CheckCircleIcon /> {/* 必要に応じてアイコンサイズを変更 */}
+                        </div>
+                      )}
+                      <ImageListItemBar title={cocktail.strDrink} position="below"         sx={{
+          textAlign: 'center', // これでタイトルを中央揃え
+          justifyContent: 'center', // さらに、タイトル全体を中央に配置
+          backgroundColor: 'rgba(30, 36, 42, 0.8)', // 背景の透明度を少し変更（必要に応じて）
+          color: 'white',
+          fontSize: '10px' // タイトルの文字色を変更（必要に応じて）
+        }} />
+                    </ImageListItem>
+                    </Card>
                 ))
               ) : (
                 <p>カクテルが見つかりません。</p>

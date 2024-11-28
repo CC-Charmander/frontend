@@ -153,7 +153,7 @@ export const CocktailDetail = () => {
     setTooltipOpen((prev) => !prev)
   }
 
-  // 材料のTooltipのサイズを設定
+  // 材料のTooltipサイズを設定
   const CustomWidthTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))({
@@ -382,7 +382,6 @@ export const CocktailDetail = () => {
                     </IconButton>
                   </CustomWidthTooltip>
                 </div>
-                {/* <h2>材料</h2> */}
                 <ul>
                   {cocktail[0].ingredients.map((ing, i) => (
                     <li key={ing}>

@@ -4,7 +4,8 @@ import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
@@ -28,12 +29,13 @@ export const CocktailDetail = () => {
   const LONG_PRESS_THRESHOLD = 500; // 500ミリ秒
 
   const [aiComments, setAiComments] = useState(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const navigate = useNavigate();
 
   const { cocktailId } = useParams();
 
-  const cocktail = cocktails
+  const cocktail = cocktails;
 
   const handleClick = async () => {
     setIsChecked(!isChecked);
@@ -135,7 +137,6 @@ export const CocktailDetail = () => {
 
         // ↓バーテンダーコメントをセット
         setAiComments(getRes.data);
-
       }
     } catch (err) {
       console.log(err.response.status);
@@ -146,6 +147,20 @@ export const CocktailDetail = () => {
       }
     }
   };
+
+  // 材料のTooltipをOpen/Closeするための関数
+  const handleTooltip = () => {
+    setTooltipOpen((prev) => !prev)
+  }
+
+  // 材料のTooltipのサイズを設定
+  const CustomWidthTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))({
+    [`& .${tooltipClasses.tooltip}`]: {
+      maxWidth: 500,
+    },
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -160,15 +175,15 @@ export const CocktailDetail = () => {
 
         if (Array.isArray(data)) {
           setCocktails(data); // 配列ならそのまま設定
-          console.log("Valid Data")
+          console.log("Valid Data");
         } else {
           console.error("Expected an array but got:", data);
-          console.log("不正なデータ")
+          console.log("不正なデータ");
           setCocktails([]); // 不正なデータの場合は空配列
         }
       } catch (error) {
         console.error("Failed to fetch cocktails data:", error);
-        console.log("フェッチ失敗")
+        console.log("フェッチ失敗");
         setCocktails([]); // フェッチ失敗時も空配列
       }
     };
@@ -322,19 +337,50 @@ export const CocktailDetail = () => {
               <div className="ingredients">
                 <div className="ingredients-title">
                   <h2>材料</h2>
-                  <IconButton
-                    sx={{
-                      marginTop: '17px',
-                      width: '30px',
-                      height: '30px'
-                    }}
+                  <CustomWidthTooltip 
+                    title={
+                      <div style={{ display: 'grid', gridTemplateColumns: '0.6fr 1fr', gap: '8px' }}>
+                        <Typography>
+                          dash: 一滴<br />
+                          splash: 数滴<br />
+                          tsp: 約5ml<br />
+                          oz: 約30ml<br />
+                          jigger: 約45ml<br />
+                          shot: 約45ml<br />
+                          gr: グラム<br />
+                          ml: ミリリットル<br />
+                        </Typography>
+                        <Typography>
+                          cubes: 立方体の氷<br />
+                          twist of: 皮を添えること<br />
+                          slice: スライスして添えること
+                          bottle: ボトル<br />
+                          part: 材料の比率<br />
+                          Fill with: 飲料で満たすこと<br />
+                          Top it up with: 満たすこと<br />
+                        </Typography>
+                      </div>
+                    }
+                    placement="top-end"
+                    arrow
+                    open={tooltipOpen}
+                    onClose={() => setTooltipOpen(false)}
                   >
-                    <HelpOutlineIcon
+                    <IconButton
+                      onClick={handleTooltip}
                       sx={{
-                        fontSize: '1rem',
+                        marginTop: "17px",
+                        width: "30px",
+                        height: "30px",
                       }}
-                    />
-                  </IconButton>
+                    >
+                      <HelpOutlineIcon
+                        sx={{
+                          fontSize: "1rem",
+                        }}
+                      />
+                    </IconButton>
+                  </CustomWidthTooltip>
                 </div>
                 {/* <h2>材料</h2> */}
                 <ul>

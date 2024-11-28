@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../assets/css/cocktail-detail.css";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
@@ -18,6 +19,11 @@ const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
+  const [pressTimer, setPressTimer] = useState(null);
+  const LONG_PRESS_THRESHOLD = 500; // 500ミリ秒
+
   const [aiComments, setAiComments] = useState(null);
 
   const navigate = useNavigate();
@@ -51,12 +57,63 @@ export const CocktailDetail = () => {
     }
   };
 
+  const handleLikeButtonClick = async () => {
+    setIsLiked(!isLiked);
+    try {
+      const getRes = await axios.get(`${BASE_URL}/favorites`, {
+        params: {
+          cocktailId: cocktailId,
+          userId: 1,
+        },
+      });
+      if (getRes.data.exists === 0) {
+        // DBにデータが無かった場合 → データ登録
+        const postRes = await axios.post(`${BASE_URL}/favorites`, {
+          userId: 1,
+          cocktailId: parseInt(cocktailId),
+        });
+      } else {
+        // DBにデータが有った場合 → データ削除
+        const deleteRes = await axios.delete(`${BASE_URL}/favorites`, {
+          params: {
+            cocktailId: cocktailId,
+            userId: 1,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("favorites関連でエラーが発生", err);
+    }
+  };
+
+  // ♡マークを表示するための関数
+  const handleLongPressStart = () => {
+    setPressTimer(
+      setTimeout(() => {
+        setShowHeart(true);
+        handleLikeButtonClick(); // Like登録を行う
+        setTimeout(() => {
+          setShowHeart(false);
+        }, 1000); // 1秒後に♡マークを非表示
+      }, LONG_PRESS_THRESHOLD)
+    );
+  };
+
+  // ♡マークを非表示するための関数
+  const handleLongPressEnd = () => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
+
+  // AIコメント取得のための関数
   const getAiComment = async (cocktail) => {
     try {
       if (cocktail.length !== 0) {
-        const reqData = JSON.stringify(cocktail[0].ingredients)
+        const reqData = JSON.stringify(cocktail[0].ingredients);
 
-        console.log(reqData)
+        console.log(reqData);
 
         // flaskの/api/testを叩くコード
         // const getTestRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/test`);
@@ -67,22 +124,22 @@ export const CocktailDetail = () => {
         // console.log(getSnackRes.data)
 
         // ↓引数ありバージョン
-        const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
-          params: {
-            ingredients: reqData,
-          },
-        });
-        console.log(getRes.data)
+        // const getRes = await axios.get(`${REC_BASE_URL}/snack`, {
+        //   params: {
+        //     ingredients: reqData,
+        //   },
+        // });
+        // console.log(getRes.data);
 
         // ↓バーテンダーコメントをセット
         // setAiComments(getSnackRes.data)
-    
+
         // console.log(getSnackRes.data)
       }
     } catch (err) {
-      console.log(err.response.status)
-      if(err.response.status === 500) {
-        console.log("status500のエラーのため再送")
+      console.log(err.response.status);
+      if (err.response.status === 500) {
+        console.log("status500のエラーのため再送");
         // await getAiComment(cocktail);
       } else {
         console.error("setAiComment 関連でエラーが発生", err);
@@ -134,13 +191,15 @@ export const CocktailDetail = () => {
 
   const { cocktailId } = useParams();
 
-  const cocktail = cocktails.filter((cocktail) => cocktail.idDrink === cocktailId);
+  const cocktail = cocktails.filter(
+    (cocktail) => cocktail.idDrink === cocktailId
+  );
 
   useEffect(() => {
     if (cocktail.length > 0) {
       getAiComment(cocktail);
     }
-  }, [cocktails])
+  }, [cocktails]);
 
   return (
     <>
@@ -170,21 +229,45 @@ export const CocktailDetail = () => {
             </Toolbar>
           </AppBar>
           <Box padding={2} marginTop={10}>
-            <div>
-              {/* テスト用に直貼りしてあるが、実際にはObjectから取得する */}
+            <div style={{ position: "relative" }}>
               <img
-                src={cocktail[0].strDrinkThumb}
+                src={cocktails[0].strDrinkThumb}
                 alt="Cocktail"
                 className="detail-cocktail-image"
                 style={{ borderRadius: "8px" }}
+                onMouseDown={handleLongPressStart}
+                onMouseUp={handleLongPressEnd}
+                onTouchStart={handleLongPressStart}
+                onTouchEnd={handleLongPressEnd}
               />
+              {showHeart && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    fontSize: "5rem",
+                    color: "#C15F50",
+                    pointerEvents: "none", // 背景クリックイベントを無視
+                  }}
+                >
+                  ♥
+                </div>
+              )}
             </div>
-
             <div className="cocktail-header">
-              <IconButton onClick={handleClick}>
+              <IconButton onClick={handleLikeButtonClick}>
                 <FavoriteTwoToneIcon
                   sx={{
-                    color: isChecked ? "#ff3366" : "white",
+                    color: isLiked ? "#C15F50" : "white",
+                  }}
+                />
+              </IconButton>
+              <IconButton onClick={handleClick}>
+                <CheckCircleIcon
+                  sx={{
+                    color: isChecked ? "#C15F50" : "white",
                   }}
                 />
               </IconButton>

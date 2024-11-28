@@ -20,6 +20,7 @@ export const CocktailDetail = () => {
   const [cocktails, setCocktails] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0); // いいねの数を管理
   const [showHeart, setShowHeart] = useState(false);
   const [pressTimer, setPressTimer] = useState(null);
   const LONG_PRESS_THRESHOLD = 500; // 500ミリ秒
@@ -28,6 +29,11 @@ export const CocktailDetail = () => {
 
   const navigate = useNavigate();
 
+  const { cocktailId } = useParams();
+
+  const cocktail = cocktails.filter(
+    (cocktail) => cocktail.idDrink === cocktailId
+  );
   const handleClick = async () => {
     setIsChecked(!isChecked);
     try {
@@ -58,7 +64,6 @@ export const CocktailDetail = () => {
   };
 
   const handleLikeButtonClick = async () => {
-    setIsLiked(!isLiked);
     try {
       const getRes = await axios.get(`${BASE_URL}/favorites`, {
         params: {
@@ -72,6 +77,8 @@ export const CocktailDetail = () => {
           userId: 1,
           cocktailId: parseInt(cocktailId),
         });
+        setIsLiked(true);
+        setLikeCount((prev) => prev + 1); // いいね数を増加
       } else {
         // DBにデータが有った場合 → データ削除
         const deleteRes = await axios.delete(`${BASE_URL}/favorites`, {
@@ -80,6 +87,8 @@ export const CocktailDetail = () => {
             userId: 1,
           },
         });
+        setIsLiked(false);
+        setLikeCount((prev) => prev - 1); // いいね数を減少
       }
     } catch (err) {
       console.error("favorites関連でエラーが発生", err);
@@ -124,15 +133,18 @@ export const CocktailDetail = () => {
         // console.log(getSnackRes.data)
 
         // ↓引数ありバージョン
-        const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
-          params: {
-            ingredients: reqData,
-          },
-        });
+        const getRes = await axios.get(
+          `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
+          {
+            params: {
+              ingredients: reqData,
+            },
+          }
+        );
         // console.log(getRes.data);
 
         // ↓バーテンダーコメントをセット
-        setAiComments(getRes.data)
+        setAiComments(getRes.data);
 
         // console.log(getSnackRes.data)
       }
@@ -189,11 +201,42 @@ export const CocktailDetail = () => {
     initialData();
   }, []);
 
-  const { cocktailId } = useParams();
+  useEffect(() => {
+    const fetchLikeCount = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/favorites`, {
+          params: { cocktailId: cocktailId },
+        });
+        setLikeCount(res.data.favoriteNum); // 初期のいいね数を設定
+      } catch (err) {
+        console.error("いいね数の取得でエラーが発生", err);
+      }
+    };
+    fetchLikeCount();
+  }, []);
 
-  const cocktail = cocktails.filter(
-    (cocktail) => cocktail.idDrink === cocktailId
-  );
+  useEffect(() => {
+    const fetchLikeStatus = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/favorites`, {
+          params: {
+            cocktailId: cocktailId,
+            userId: 1,
+          },
+        });
+
+        if (res.data.exists === 1) {
+          setIsLiked(true);
+        } else {
+          setIsLiked(false);
+        }
+      } catch (err) {
+        console.error("いいねの状態を取得できませんでした", err);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [cocktailId]);
 
   useEffect(() => {
     if (cocktail.length > 0) {
@@ -264,6 +307,11 @@ export const CocktailDetail = () => {
                   }}
                 />
               </IconButton>
+              <span
+                style={{ fontSize: "1.2rem", marginLeft: "0px", color: "#555" }}
+              >
+                {likeCount}
+              </span>
               <IconButton onClick={handleClick}>
                 <CheckCircleIcon
                   sx={{

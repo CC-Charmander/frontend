@@ -363,7 +363,9 @@ export const CocktailDetail = () => {
                 {/* 2列目: タイトルとテキスト */}
                 <div style={{ flex: 1 }}>
                   {aiComments === null ? (
-                    <p>考え中です・・・</p>
+                    <p style={{
+                      marginBottom: "100px"
+                    }}>考え中です・・・</p>
                   ) : (
                     <p>{aiComments}</p>
                   )}

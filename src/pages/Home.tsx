@@ -218,7 +218,7 @@ export const Home = () => {
                         <CheckCircleIcon /> {/* 必要に応じてアイコンサイズを変更 */}
                       </div>
                     )}
-                    <ImageListItemBar title={cocktail.strDrink} subtitle="ポエポエポエム" position="below" />
+                    <ImageListItemBar title={cocktail.strDrink} position="below" />
                   </ImageListItem>
                 ))
               ) : (

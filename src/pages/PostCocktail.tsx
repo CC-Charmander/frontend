@@ -24,7 +24,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 
@@ -43,10 +43,10 @@ const region = "us-east-1"
 //   }),
 // });
 
-// const credentials = fromCognitoIdentityPool({
-//   client: new CognitoIdentityClient({ region }), // CognitoIdentityClientのインスタンスを作成
-//   identityPoolId, // Cognito Identity Pool ID
-// });
+const credentials = fromCognitoIdentityPool({
+  client: new CognitoIdentityClient({ region }), // CognitoIdentityClientのインスタンスを作成
+  identityPoolId, // Cognito Identity Pool ID
+});
 
 // const bucket = new AWS.S3({
 //   params: {
@@ -58,10 +58,10 @@ const region = "us-east-1"
 //   region: 'ap-northeast-1'
 // });
 
-// const s3Client = new S3Client({
-//   region,
-//   credentials, // Cognito Identity Pool から取得した認証情報を渡す
-// });
+const s3Client = new S3Client({
+  region,
+  credentials, // Cognito Identity Pool から取得した認証情報を渡す
+});
 
 
 
@@ -263,10 +263,10 @@ export const PostCocktail = () => {
 
   const postCocktail = async () => {
     if (selectedImage !== null){
-        // setIsUploading(true);
-        // const mimeType = selectedImage.split(';')[0].split(':')[1];
-        // const blob = base64ToBlob(selectedImage, mimeType);
-        // const key = `${Date.now()}_${Math.random()}.${mimeType.split('/')[1]}`
+        setIsUploading(true);
+        const mimeType = selectedImage.split(';')[0].split(':')[1];
+        const blob = base64ToBlob(selectedImage, mimeType);
+        const key = `${Date.now()}_${Math.random()}.${mimeType.split('/')[1]}`
     
         // new Promise((resolve, reject) => {
         //   bucket.putObject(
@@ -285,9 +285,17 @@ export const PostCocktail = () => {
         //     }
         //   );
         // });
+
+        // PutObjectCommandでS3へアップロード
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+          Body: blob,
+          ContentType: mimeType,
+        });
         
-        // const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`; 
-        const imageUrl = `https://cocktify-images.s3.us-east-1.amazonaws.com/Cocktail1.jpg`; 
+        const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`; 
+        //const imageUrl = `https://cocktify-images.s3.us-east-1.amazonaws.com/Cocktail1.jpg`; 
         
         // レシピDBへ登録用のオブジェクトを作成
         const Recipe: Recipe = {
@@ -302,6 +310,8 @@ export const PostCocktail = () => {
         try {
           // レシピ投稿APIへPOSTリクエストを送信
           await axios.post(BASE_URL + '/recipes', Recipe);
+          const data = await s3Client.send(putObjectCommand);
+          console.log("Successfully uploaded object to S3", data);
 
           // 成功した場合、成功を表示するスナックバーを表示
           setSnackbarMessage('カクテルの投稿が完了しました！');
@@ -314,6 +324,7 @@ export const PostCocktail = () => {
           naviate("/")
 
         } catch (error) {
+          console.error("Error uploading object to S3", error);
           setOpenSnackbar(false);
           setSnackbarMessage('投稿に失敗しました。再度お試しください。');
         }

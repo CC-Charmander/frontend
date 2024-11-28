@@ -58,6 +58,10 @@
   margin-bottom: 5px; /* 各リストアイテムの下に余白を追加 */
 }
 
+.ingredients-title {
+  display: inline-flex;
+}
+
 .AI-title {
   /* text-align: center; */
   margin-bottom: 0;

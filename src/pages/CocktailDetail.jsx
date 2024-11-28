@@ -3,6 +3,9 @@ import "../assets/css/cocktail-detail.css";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
@@ -26,6 +29,7 @@ export const CocktailDetail = () => {
   const LONG_PRESS_THRESHOLD = 500; // 500ミリ秒
 
   const [aiComments, setAiComments] = useState(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -151,6 +155,20 @@ export const CocktailDetail = () => {
       }
     }
   };
+
+  // 材料のTooltipをOpen/Closeするための関数
+  const handleTooltip = () => {
+    setTooltipOpen((prev) => !prev)
+  }
+
+  // 材料のTooltipサイズを設定
+  const CustomWidthTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))({
+    [`& .${tooltipClasses.tooltip}`]: {
+      maxWidth: 500,
+    },
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -325,7 +343,53 @@ export const CocktailDetail = () => {
             </div>
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 4 }}>
               <div className="ingredients">
-                <h2>材料</h2>
+                <div className="ingredients-title">
+                  <h2>材料</h2>
+                  <CustomWidthTooltip 
+                    title={
+                      <div style={{ display: 'grid', gridTemplateColumns: '0.6fr 1fr', gap: '8px' }}>
+                        <Typography>
+                          dash: 一滴<br />
+                          splash: 数滴<br />
+                          tsp: 約5ml<br />
+                          oz: 約30ml<br />
+                          jigger: 約45ml<br />
+                          shot: 約45ml<br />
+                          gr: グラム<br />
+                          ml: ミリリットル<br />
+                        </Typography>
+                        <Typography>
+                          cubes: 立方体の氷<br />
+                          twist of: 皮を添えること<br />
+                          slice: スライスして添えること
+                          bottle: ボトル<br />
+                          part: 材料の比率<br />
+                          Fill with: 飲料で満たすこと<br />
+                          Top it up with: 満たすこと<br />
+                        </Typography>
+                      </div>
+                    }
+                    placement="top-end"
+                    arrow
+                    open={tooltipOpen}
+                    onClose={() => setTooltipOpen(false)}
+                  >
+                    <IconButton
+                      onClick={handleTooltip}
+                      sx={{
+                        marginTop: "17px",
+                        width: "30px",
+                        height: "30px",
+                      }}
+                    >
+                      <HelpOutlineIcon
+                        sx={{
+                          fontSize: "1rem",
+                        }}
+                      />
+                    </IconButton>
+                  </CustomWidthTooltip>
+                </div>
                 <ul>
                   {cocktail[0].ingredients.map((ing, i) => (
                     <li key={ing}>

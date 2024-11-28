@@ -117,31 +117,40 @@ export const CocktailDetail = () => {
 
   // AIコメント取得のための関数
   const getAiComment = async (cocktail) => {
-    try {
-      if (cocktail.length !== 0) {
-        const reqData = JSON.stringify(cocktail[0].ingredients);
+    const casheName = cocktailId + "Text";
+    const cachedValue = localStorage.getItem(casheName);
 
-        //console.log(`${REC_BASE_URL}/snack`)
-        const getRes = await axios.get(
-          `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
-          {
-            params: {
-              ingredients: reqData,
-            },
-          }
-        );
-
-        // ↓バーテンダーコメントをセット
-        setAiComments(getRes.data);
-
-      }
-    } catch (err) {
-      console.log(err.response.status);
-      if (err.response.status === 500) {
-        //setAiComments("...すみません聞き取れませんでした");
-      } else {
-        console.error("setAiComment 関連でエラーが発生", err);
-      }
+    if (cachedValue){
+      setAiComments(cachedValue);
+    }
+    else {
+      try {
+        if (cocktail.length !== 0) {
+          const reqData = JSON.stringify(cocktail[0].ingredients);
+  
+          //console.log(`${REC_BASE_URL}/snack`)
+          const getRes = await axios.get(
+            `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
+            {
+              params: {
+                ingredients: reqData,
+              },
+            }
+          );
+  
+          // ↓バーテンダーコメントをセット
+          localStorage.setItem(casheName, getRes.data);
+          setAiComments(getRes.data);
+  
+        }
+      } catch (err) {
+        console.log(err.response.status);
+        if (err.response.status === 500) {
+          //setAiComments("...すみません聞き取れませんでした");
+        } else {
+          console.error("setAiComment 関連でエラーが発生", err);
+        }
+      }    
     }
   };
 

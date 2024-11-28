@@ -62,6 +62,8 @@
   display: inline-flex;
 }
 
-.test {
-  background-color: aqua;
+.AI-title {
+  /* text-align: center; */
+  margin-bottom: 0;
+  font-size: 20px;
 }

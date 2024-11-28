@@ -121,29 +121,37 @@ export const CocktailDetail = () => {
 
   // AIコメント取得のための関数
   const getAiComment = async (cocktail) => {
-    try {
-      if (cocktail.length !== 0) {
-        const reqData = JSON.stringify(cocktail[0].ingredients);
+    const casheName = cocktailId + "Text";
+    const cachedValue = localStorage.getItem(casheName);
 
-        //console.log(`${REC_BASE_URL}/snack`)
-        const getRes = await axios.get(
-          `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
-          {
-            params: {
-              ingredients: reqData,
-            },
-          }
-        );
+    if (cachedValue) {
+      setAiComments(cachedValue);
+    } else {
+      try {
+        if (cocktail.length !== 0) {
+          const reqData = JSON.stringify(cocktail[0].ingredients);
 
-        // ↓バーテンダーコメントをセット
-        setAiComments(getRes.data);
-      }
-    } catch (err) {
-      console.log(err.response.status);
-      if (err.response.status === 500) {
-        setAiComments("...すみません聞き取れませんでした");
-      } else {
-        console.error("setAiComment 関連でエラーが発生", err);
+          //console.log(`${REC_BASE_URL}/snack`)
+          const getRes = await axios.get(
+            `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
+            {
+              params: {
+                ingredients: reqData,
+              },
+            }
+          );
+
+          // ↓バーテンダーコメントをセット
+          localStorage.setItem(casheName, getRes.data);
+          setAiComments(getRes.data);
+        }
+      } catch (err) {
+        console.log(err.response.status);
+        if (err.response.status === 500) {
+          //setAiComments("...すみません聞き取れませんでした");
+        } else {
+          console.error("setAiComment 関連でエラーが発生", err);
+        }
       }
     }
   };
@@ -392,13 +400,40 @@ export const CocktailDetail = () => {
               </div>
             </Paper>
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
-              <div className="ingredients">
-                <h2>バーテンダーから一言</h2>
-                {aiComments === null ? (
-                  <p>考え中です・・・</p>
-                ) : (
-                  <p>{aiComments}</p>
-                )}
+              
+              <div
+                className="ingredients"
+                // style={{ display: "flex", alignItems: "center" }}
+              >
+                <h2 className="AI-title">バーテンダーから一言</h2>
+                {/* 1列目: 画像 */}
+                <div style={{ marginRight: "16px" }}>
+                  <div className="AI-image">
+                    <img
+                      src="https://cocktify-images.s3.us-east-1.amazonaws.com/bartender.png" // 画像のパスを指定
+                      alt="bartender"
+                      style={{
+                        width: "120px", // 画像のサイズ
+                        height: "120px", // 画像のサイズ
+                        borderRadius: "15%", // 円形にする場合
+                        objectFit: "cover", // 画像が枠内に収まるように調整
+                        float: "right",
+                        marginTop: "16px"
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                {/* 2列目: タイトルとテキスト */}
+                <div style={{ flex: 1 }}>
+                  {aiComments === null ? (
+                    <p style={{
+                      marginBottom: "100px"
+                    }}>考え中です・・・</p>
+                  ) : (
+                    <p>{aiComments}</p>
+                  )}
+                </div>
               </div>
             </Paper>
           </Box>

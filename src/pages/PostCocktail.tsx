@@ -14,7 +14,7 @@ import {
   Toolbar,
   Typography,
   Snackbar,
-  Alert
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -28,13 +28,12 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const bucketName = "cocktify-images";
 const identityPoolId = "us-east-1:6b60a7c1-762c-4ce0-9446-6a05de461242";
 const maxPhotosFromBucket = 125;
-const region = "us-east-1"
+const region = "us-east-1";
 
 // AWS.config.update({
 //   region: region,
@@ -63,8 +62,6 @@ const s3Client = new S3Client({
   credentials, // Cognito Identity Pool から取得した認証情報を渡す
 });
 
-
-
 type Recipe = {
   idDrink?: string;
   strDrink: string;
@@ -80,7 +77,6 @@ type Recipe = {
   measures: string[];
   user_id: number;
 };
-
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -113,10 +109,12 @@ const measures = [
 ];
 
 export const PostCocktail = () => {
-  const [openSnackbar, setOpenSnackbar] = useState(false);  // Snackbarの表示状態
-  const [snackbarMessage, setSnackbarMessage] = useState("");  // Snackbarに表示するメッセージ
-  const [confirmAction, setConfirmAction] = useState<"none" | "submit" | "cancel">("none"); // ユーザーアクションの管理
-  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);  // 投稿完了スナックバー
+  const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbarの表示状態
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // Snackbarに表示するメッセージ
+  const [confirmAction, setConfirmAction] = useState<
+    "none" | "submit" | "cancel"
+  >("none"); // ユーザーアクションの管理
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false); // 投稿完了スナックバー
 
   const [ingredientError, setIngredientError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
@@ -124,12 +122,13 @@ export const PostCocktail = () => {
 
   // ボタンを押したときのバリデーション
   const [titleError, setTitleError] = useState<string | null>(null);
-  const [txIngredientError, setTxIngredientError] = useState<string | null>(null);
+  const [txIngredientError, setTxIngredientError] = useState<string | null>(
+    null
+  );
   const [imageError, setImageError] = useState<string | null>(null);
-  
-  
-  const [inputTitle, setInputTitle] = useState<string>('');
-  
+
+  const [inputTitle, setInputTitle] = useState<string>("");
+
   const [inputIngredient, setInputIngredient] = useState("");
   const [amount, setAmount] = useState<string>("");
   const [unit, setUnit] = useState<string>("");
@@ -139,8 +138,7 @@ export const PostCocktail = () => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const [isUploading, setIsUploading] = useState(false); 
-
+  const [isUploading, setIsUploading] = useState(false);
 
   const naviate = useNavigate();
 
@@ -199,20 +197,23 @@ export const PostCocktail = () => {
     setTxIngredients((prev) => prev.filter((_, j) => j !== i));
     setTxMeasures((prev) => prev.filter((_, j) => j !== i));
   };
-  
+
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputTitle(event.target.value); // 入力値を状態にセット
     if (titleError) setTitleError(null);
   };
 
-  const handleInputIngredientChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+  const handleInputIngredientChange = (
+    event: React.ChangeEvent<{}>,
+    newValue: string
+  ) => {
     setInputIngredient(newValue);
     if (txIngredientError) setTxIngredientError(null); // txIngredientErrorをリセット
   };
 
   // BASE64の形式をBLOBに変換する
   const base64ToBlob = (base64: string, mimeType: string) => {
-    const byteCharacters = atob(base64.split(',')[1]);
+    const byteCharacters = atob(base64.split(",")[1]);
     const byteArrays = [];
 
     for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
@@ -234,7 +235,7 @@ export const PostCocktail = () => {
     let hasError = false;
 
     // カクテル名が入っているかのチェック
-    if (!inputTitle || inputTitle.trim() === '') {
+    if (!inputTitle || inputTitle.trim() === "") {
       setTitleError("カクテル名を入力してください。");
       hasError = true;
     }
@@ -256,80 +257,78 @@ export const PostCocktail = () => {
     }
 
     // 以下、投稿確認用のスナックバーを表示
-    setSnackbarMessage('レシピを投稿します。本当によろしいですか。');
+    setSnackbarMessage("レシピを投稿しますか？");
     setConfirmAction("submit");
     setOpenSnackbar(true);
-  }
+  };
 
   const postCocktail = async () => {
-    if (selectedImage !== null){
-        setIsUploading(true);
-        const mimeType = selectedImage.split(';')[0].split(':')[1];
-        const blob = base64ToBlob(selectedImage, mimeType);
-        const key = `${Date.now()}_${Math.random()}.${mimeType.split('/')[1]}`
-    
-        // new Promise((resolve, reject) => {
-        //   bucket.putObject(
-        //     {
-        //       Bucket: bucketName,
-        //       Key: key,
-        //       Body: blob,
-        //       ContentType: mimeType,
-        //     },
-        //     (error, data) => {
-        //       if (error) {
-        //         console.error("error: ", error);
-        //         return;
-        //       }
-        //       resolve(data);
-        //     }
-        //   );
-        // });
+    if (selectedImage !== null) {
+      setIsUploading(true);
+      const mimeType = selectedImage.split(";")[0].split(":")[1];
+      const blob = base64ToBlob(selectedImage, mimeType);
+      const key = `${Date.now()}_${Math.random()}.${mimeType.split("/")[1]}`;
 
-        // PutObjectCommandでS3へアップロード
-        const putObjectCommand = new PutObjectCommand({
-          Bucket: bucketName,
-          Key: key,
-          Body: blob,
-          ContentType: mimeType,
-        });
-        
-        const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`; 
-        //const imageUrl = `https://cocktify-images.s3.us-east-1.amazonaws.com/Cocktail1.jpg`; 
-        
-        // レシピDBへ登録用のオブジェクトを作成
-        const Recipe: Recipe = {
-          strDrink: inputTitle, 
-          strTags: 'test',  // 任意のタグ
-          ingredients: txIngredients,
-          measures: txMeasures,
-          strDrinkThumb: imageUrl,  // 画像URL
-          user_id: 1, // TODO: 仮user_id「1」で固定。ログイン機能実装後に差し替える。
-        };
+      // new Promise((resolve, reject) => {
+      //   bucket.putObject(
+      //     {
+      //       Bucket: bucketName,
+      //       Key: key,
+      //       Body: blob,
+      //       ContentType: mimeType,
+      //     },
+      //     (error, data) => {
+      //       if (error) {
+      //         console.error("error: ", error);
+      //         return;
+      //       }
+      //       resolve(data);
+      //     }
+      //   );
+      // });
 
-        try {
-          // レシピ投稿APIへPOSTリクエストを送信
-          await axios.post(BASE_URL + '/recipes', Recipe);
-          const data = await s3Client.send(putObjectCommand);
-          console.log("Successfully uploaded object to S3", data);
+      // PutObjectCommandでS3へアップロード
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: blob,
+        ContentType: mimeType,
+      });
 
-          // 成功した場合、成功を表示するスナックバーを表示
-          setSnackbarMessage('カクテルの投稿が完了しました！');
-          setOpenSnackbar(false);
-          setOpenSuccessSnackbar(true);
+      const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+      //const imageUrl = `https://cocktify-images.s3.us-east-1.amazonaws.com/Cocktail1.jpg`;
 
-          // スナックバー表示のため、インターバルを設ける
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          // ホーム画面に遷移
-          naviate("/")
+      // レシピDBへ登録用のオブジェクトを作成
+      const Recipe: Recipe = {
+        strDrink: inputTitle,
+        strTags: "test", // 任意のタグ
+        ingredients: txIngredients,
+        measures: txMeasures,
+        strDrinkThumb: imageUrl, // 画像URL
+        user_id: 1, // TODO: 仮user_id「1」で固定。ログイン機能実装後に差し替える。
+      };
 
-        } catch (error) {
-          console.error("Error uploading object to S3", error);
-          setOpenSnackbar(false);
-          setSnackbarMessage('投稿に失敗しました。再度お試しください。');
-        }
+      try {
+        // レシピ投稿APIへPOSTリクエストを送信
+        await axios.post(BASE_URL + "/recipes", Recipe);
+        const data = await s3Client.send(putObjectCommand);
+        console.log("Successfully uploaded object to S3", data);
+
+        // 成功した場合、成功を表示するスナックバーを表示
+        setSnackbarMessage("カクテルの投稿が完了しました！");
+        setOpenSnackbar(false);
+        setOpenSuccessSnackbar(true);
+
+        // スナックバー表示のため、インターバルを設ける
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        // ホーム画面に遷移
+        naviate("/");
+      } catch (error) {
+        console.error("Error uploading object to S3", error);
+        setOpenSnackbar(false);
+        setSnackbarMessage("投稿に失敗しました。再度お試しください。");
+      }
     }
-
   };
 
   return (
@@ -368,7 +367,20 @@ export const PostCocktail = () => {
               }}
             />
           )}
-          <Button component="label" role={undefined} variant="text" tabIndex={-1} startIcon={<CloudUploadIcon />}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="text"
+            tabIndex={-1}
+            sx={{
+              color: "rgba(255, 255, 255, 0.87)",
+              backgroundColor: "#3C4C5D", // 塗りつぶしカラー
+              "&:hover": {
+                backgroundColor: "#7B7C93", // ホバー時の塗りつぶしカラー
+              },
+            }} // カスタムカラーを指定
+            startIcon={<CloudUploadIcon />}
+          >
             画像を選択する
             <input
               type="file"
@@ -386,7 +398,15 @@ export const PostCocktail = () => {
         </Card>
         <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
           <Typography gutterBottom>カクテル名</Typography>
-          <TextField variant="outlined" placeholder="" fullWidth value={inputTitle} onChange={handleTitleChange} error={!!titleError} helperText={titleError}></TextField>
+          <TextField
+            variant="outlined"
+            placeholder=""
+            fullWidth
+            value={inputTitle}
+            onChange={handleTitleChange}
+            error={!!titleError}
+            helperText={titleError}
+          ></TextField>
         </Card>
         <Card sx={{ padding: "24px", marginTop: 2, borderRadius: "16px" }}>
           <Typography gutterBottom>材料</Typography>
@@ -401,7 +421,12 @@ export const PostCocktail = () => {
               options={ingredients}
               sx={{ flex: 1 }}
               renderInput={(params) => (
-                <TextField {...params} placeholder="原材料" error={!!ingredientError} helperText={ingredientError} />
+                <TextField
+                  {...params}
+                  placeholder="原材料"
+                  error={!!ingredientError}
+                  helperText={ingredientError}
+                />
               )}
             />
           </Stack>
@@ -436,17 +461,43 @@ export const PostCocktail = () => {
                 },
               }}
               renderInput={(params) => (
-                <TextField {...params} placeholder="単位" error={!!unitError} helperText={unitError} />
+                <TextField
+                  {...params}
+                  placeholder="単位"
+                  error={!!unitError}
+                  helperText={unitError}
+                />
               )}
             />
           </Stack>
-          <Button sx={{ width: "120px", margin: "0 auto", marginTop: "12px" }} onClick={addIngredient}>
+          <Button
+            variant="contained"
+            sx={{
+              width: "120px",
+              margin: "0 auto",
+              marginTop: "12px",
+              color: "rgba(255, 255, 255, 0.87)",
+              backgroundColor: "#3C4C5D", // 塗りつぶしカラー
+              "&:hover": {
+                backgroundColor: "#7B7C93", // ホバー時の塗りつぶしカラー
+              },
+            }} // カスタムカラーを指定
+            onClick={addIngredient}
+          >
             材料を追加
           </Button>
           {txIngredients.length !== 0 && (
             <Stack spacing={1} marginTop={2}>
               {txIngredients.map((ing, i) => (
-                <Chip label={`${ing}: ${txMeasures[i]}`} onDelete={() => handleDelete(i)} key={i} />
+                <Chip
+                  label={`${ing}: ${txMeasures[i]}`}
+                  onDelete={() => handleDelete(i)}
+                  key={i}
+                  sx={{
+                    color: "rgba(255, 255, 255, 0.87)",
+                    backgroundColor: "#C15F50", // 塗りつぶしカラー
+                  }}
+                />
               ))}
             </Stack>
           )}
@@ -456,7 +507,6 @@ export const PostCocktail = () => {
               {txIngredientError}
             </Typography>
           )}
-
         </Card>
       </Stack>
       <Box
@@ -472,7 +522,18 @@ export const PostCocktail = () => {
           borderRadius: 0,
         }}
       >
-        <Button fullWidth onClick={checkValidation} variant="contained">
+        <Button
+          fullWidth
+          onClick={checkValidation}
+          variant="contained"
+          sx={{
+            color: "rgba(255, 255, 255, 0.87)",
+            backgroundColor: "#C15F50", // 塗りつぶしカラー
+            "&:hover": {
+              backgroundColor: "#7B7C93", // ホバー時の塗りつぶしカラー
+            },
+          }}
+        >
           シェア
         </Button>
       </Box>
@@ -481,59 +542,69 @@ export const PostCocktail = () => {
         autoHideDuration={null}
         onClose={() => setOpenSnackbar(false)}
         sx={{
-          position: 'fixed', // 固定表示
-          top: '20px', // 上部からの距離を調整
-          left: '50%', // 中央寄せ
-          transform: 'translateX(-50%)', // 画面の中央に配置
+          position: "fixed", // 固定表示
+          top: "20px", // 上部からの距離を調整
+          left: "50%", // 中央寄せ
+          transform: "translateX(-50%)", // 画面の中央に配置
           zIndex: 1300, // 他の要素との重なり順
         }}
       >
         <Alert
+          variant="outlined"
           severity="info"
           sx={{
             width: "auto", // 自動的にコンテンツの幅に合わせる
             display: "flex",
             flexDirection: "column", // 縦並びにする
-            padding: 0, // スナックバー内の余白を最小限に
+            padding: 1, // スナックバー内の余白を最小限に
+            "& .MuiAlert-icon": {
+              display: "none", // アイコンを非表示
+            },
+            color: "rgba(255, 255, 255, 0.87)",
+            borderColor: "#C15F50", // アウトラインの色を指定
+            backgroundColor: "#181F27", // 塗りつぶしカラー
+            // "&:hover": {
+            //   backgroundColor: "#7B7C93", // ホバー時の塗りつぶしカラー
+            // },
           }}
         >
-            <>
-          <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
-          {snackbarMessage}
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-            <Button
-              color="inherit"
-              size="small"
-              onClick={postCocktail}
-              sx={{ flex: 1 }}
-            >
-              OK
-            </Button>
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setConfirmAction("cancel");
-                setOpenSnackbar(false);
-              }}
-              sx={{ flex: 1 }}
-            >
-              NG
-            </Button>
-          </Box>
+          <>
+            <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
+              {snackbarMessage}
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={postCocktail}
+                sx={{ flex: 1 }}
+              >
+                OK
+              </Button>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setConfirmAction("cancel");
+                  setOpenSnackbar(false);
+                }}
+                sx={{ flex: 1 }}
+              >
+                NG
+              </Button>
+            </Box>
           </>
         </Alert>
       </Snackbar>
-            {/* 投稿完了スナックバー */}
-            <Snackbar
+      {/* 投稿完了スナックバー */}
+      <Snackbar
         open={openSuccessSnackbar}
         autoHideDuration={3000}
         sx={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          position: "fixed",
+          top: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
           zIndex: 1300,
         }}
       >

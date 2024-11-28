@@ -124,15 +124,15 @@ export const CocktailDetail = () => {
         // console.log(getSnackRes.data)
 
         // ↓引数ありバージョン
-        // const getRes = await axios.get(`${REC_BASE_URL}/snack`, {
-        //   params: {
-        //     ingredients: reqData,
-        //   },
-        // });
+        const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
+          params: {
+            ingredients: reqData,
+          },
+        });
         // console.log(getRes.data);
 
         // ↓バーテンダーコメントをセット
-        // setAiComments(getSnackRes.data)
+        setAiComments(getRes.data)
 
         // console.log(getSnackRes.data)
       }

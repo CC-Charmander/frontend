@@ -14,9 +14,11 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useEffect, useState } from "react";
 import ingredients from "../assets/data/ingredients_jp_unique.json";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
+
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export type Cocktail = {
   idDrink: string;
@@ -36,36 +38,56 @@ export const Home = () => {
   const [cocktails, setCocktails] = useState<Cocktail[] | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [selectedIngredients, setSelectedIngredients] = useState([]); //検索したい材料
-  const [filteredCocktails, setFilteredCocktails] = useState<Cocktail[] | null>(
-    null
-  ); //検索結果
+  const [filteredCocktails, setFilteredCocktails] = useState<Cocktail[] | null>(null); //検索結果
   const [searchValue, setSearchValue] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const [createdCocktails, setCreatedCocktails] = useState<number[]>([]);
 
   const navigate = useNavigate();
 
   //環境変数ファイルよりAPIエンドポイントセット
+  // @ts-ignore
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
+    const fetchCreationHistory = async () => {
+      try {
+        type CreationHistory = {
+          id: number;
+          user_id: number;
+          cocktail_id: number;
+        };
+        const response = await fetch(`${BASE_URL}/creation_history?userId=1`);
+        const data = await response.json();
+        const creationHistoriesByUserId: CreationHistory[] = data.creationHistories;
+
+        setCreatedCocktails(creationHistoriesByUserId.map((history) => history.cocktail_id));
+      } catch (error) {
+        console.error("Failed to fetch creation history:", error);
+      }
+    };
+
     const fetchData = async () => {
       try {
         const allRecipes = await axios.get(`${BASE_URL}/recipes`);
         const data = allRecipes.data;
+
         if (Array.isArray(data)) {
-          setCocktails(data); // 配列ならそのまま設定
-          setFilteredCocktails(data); //初期状態では全てのレシピをセットしておく
+          setCocktails(data);
+          setFilteredCocktails(data);
         } else {
           console.error("Expected an array but got:", data);
-          setCocktails([]); // 不正なデータの場合は空配列
-          setFilteredCocktails([]); // 不正なデータの場合は空配列
+          setCocktails([]);
+          setFilteredCocktails([]);
         }
       } catch (error) {
         console.error("Failed to fetch cocktails data:", error);
-        setCocktails([]); // フェッチ失敗時も空配列
-        setFilteredCocktails([]); // フェッチ失敗時も空配列
+        setCocktails([]);
+        setFilteredCocktails([]);
       }
     };
+    fetchCreationHistory();
     fetchData();
   }, []);
 
@@ -73,9 +95,7 @@ export const Home = () => {
     // 選択された材料に基づいて絞り込み
     if (cocktails) {
       const filtered = cocktails.filter((cocktail) =>
-        selectedIngredients.every((ingredient) =>
-          cocktail.ingredients.includes(ingredient)
-        )
+        selectedIngredients.every((ingredient) => cocktail.ingredients.includes(ingredient))
       );
       setFilteredCocktails(filtered);
     }
@@ -90,8 +110,10 @@ export const Home = () => {
     setSearchValue(inputValue);
   };
 
+  const createdCocktailsSet = new Set(createdCocktails);
+
   //検索したい材料を選択する
-  const handleIngredientChange = (event, newValue) => {
+  const handleIngredientChange = (event: any, newValue: any) => {
     if (newValue.length <= 3) {
       setSelectedIngredients(newValue);
     }
@@ -133,35 +155,17 @@ export const Home = () => {
             disableClearable={true} //テキスト入力欄のクリアボタンを消す
             value={selectedIngredients}
             onChange={handleIngredientChange}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                label="材料を選択（最大3つ）"
-              />
-            )}
+            renderInput={(params) => <TextField {...params} variant="outlined" label="材料を選択（最大3つ）" />}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => {
                 const { key, ...tagProps } = getTagProps({ index });
-                return (
-                  <Chip
-                    key={key}
-                    label={option}
-                    {...tagProps}
-                    style={{ margin: "2px" }}
-                  />
-                );
+                return <Chip key={key} label={option} {...tagProps} style={{ margin: "2px" }} />;
               })
             }
             sx={{ width: "100%" }}
           />
 
-          <IconButton
-            type="button"
-            sx={{ p: "10px" }}
-            aria-label="search"
-            onClick={search}
-          >
+          <IconButton type="button" sx={{ p: "10px" }} aria-label="search" onClick={search}>
             <SearchIcon />
           </IconButton>
         </Paper>
@@ -171,8 +175,8 @@ export const Home = () => {
           <CircularProgress />
         ) : (
           <>
-            <ImageList cols={2} sx={{ marginTop: "64px" }}>
-              {filteredCocktails.length > 0 ? (
+            <ImageList cols={2} sx={{ marginTop: "84px" }}>
+              {filteredCocktails !== null && filteredCocktails.length > 0 ? (
                 filteredCocktails.map((cocktail) => (
                   <ImageListItem
                     key={cocktail.idDrink}
@@ -191,11 +195,30 @@ export const Home = () => {
                       alt={cocktail.strDrink}
                       style={{ borderRadius: "6px", width: "45.5vw" }}
                     />
-                    <ImageListItemBar
-                      title={cocktail.strDrink}
-                      subtitle="ポエポエポエム"
-                      position="below"
-                    />
+                    {createdCocktailsSet.has(parseInt(cocktail.idDrink)) && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "calc(100% - 54px)",
+                          display: "flex",
+                          alignItems: "flex-end", // 下に揃える
+                          justifyContent: "flex-end", // 右に揃える
+                          color: "white",
+                          fontSize: "2rem",
+                          fontWeight: "bold",
+                          textShadow: "0 0 5px black",
+                          backgroundColor: "rgba(0, 0, 0, 0.5)",
+                          borderRadius: "6px",
+                          padding: "10px", // アイコンに余白を追加
+                        }}
+                      >
+                        <CheckCircleIcon /> {/* 必要に応じてアイコンサイズを変更 */}
+                      </div>
+                    )}
+                    <ImageListItemBar title={cocktail.strDrink} subtitle="ポエポエポエム" position="below" />
                   </ImageListItem>
                 ))
               ) : (

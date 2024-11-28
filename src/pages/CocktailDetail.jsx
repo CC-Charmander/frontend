@@ -31,9 +31,8 @@ export const CocktailDetail = () => {
 
   const { cocktailId } = useParams();
 
-  const cocktail = cocktails.filter(
-    (cocktail) => cocktail.idDrink === cocktailId
-  );
+  const cocktail = cocktails
+
   const handleClick = async () => {
     setIsChecked(!isChecked);
     try {
@@ -122,17 +121,7 @@ export const CocktailDetail = () => {
       if (cocktail.length !== 0) {
         const reqData = JSON.stringify(cocktail[0].ingredients);
 
-        console.log(reqData);
-
-        // flaskの/api/testを叩くコード
-        // const getTestRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/test`);
-        // console.log(getTestRes.data)
-
-        // flaskの/api/snackを叩くコード（引数無し）
-        // const getSnackRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack/test`);
-        // console.log(getSnackRes.data)
-
-        // ↓引数ありバージョン
+        //console.log(`${REC_BASE_URL}/snack`)
         const getRes = await axios.get(
           `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
           {
@@ -141,18 +130,15 @@ export const CocktailDetail = () => {
             },
           }
         );
-        // console.log(getRes.data);
 
         // ↓バーテンダーコメントをセット
         setAiComments(getRes.data);
 
-        // console.log(getSnackRes.data)
       }
     } catch (err) {
       console.log(err.response.status);
       if (err.response.status === 500) {
-        console.log("status500のエラーのため再送");
-        // await getAiComment(cocktail);
+        setAiComments("...すみません聞き取れませんでした");
       } else {
         console.error("setAiComment 関連でエラーが発生", err);
       }
@@ -162,16 +148,25 @@ export const CocktailDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const module = await import("../assets/data/cocktails_jp.json");
-        const data = module.default;
+        //const module = await import("../assets/data/cocktails_jp.json");
+        const test = await axios.get(`${BASE_URL}/recipes`, {
+          params: {
+            cocktailId: cocktailId,
+          },
+        });
+        const data = test.data;
+
         if (Array.isArray(data)) {
           setCocktails(data); // 配列ならそのまま設定
+          console.log("Valid Data")
         } else {
           console.error("Expected an array but got:", data);
+          console.log("不正なデータ")
           setCocktails([]); // 不正なデータの場合は空配列
         }
       } catch (error) {
         console.error("Failed to fetch cocktails data:", error);
+        console.log("フェッチ失敗")
         setCocktails([]); // フェッチ失敗時も空配列
       }
     };

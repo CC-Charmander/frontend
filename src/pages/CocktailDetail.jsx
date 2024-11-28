@@ -346,7 +346,7 @@ export const CocktailDetail = () => {
                 <div style={{ marginRight: "16px" }}>
                   <div className="AI-image">
                     <img
-                      src="../../public/icons/bartender.png" // 画像のパスを指定
+                      src="https://cocktify-images.s3.us-east-1.amazonaws.com/bartender.png" // 画像のパスを指定
                       alt="bartender"
                       style={{
                         width: "120px", // 画像のサイズ

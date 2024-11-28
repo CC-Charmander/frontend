@@ -25,8 +25,8 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
 import AWS from "aws-sdk";
-// const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BASE_URL = "http://cocktify.us-east-1.elasticbeanstalk.com" //一旦直書き
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//const BASE_URL = "http://cocktify.us-east-1.elasticbeanstalk.com" //一旦直書き
 
 const bucketName = "cocktify-images";
 const identityPoolId = "us-east-1:6b60a7c1-762c-4ce0-9446-6a05de461242";

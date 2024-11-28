@@ -45,8 +45,7 @@ export const Home = () => {
   const navigate = useNavigate();
 
   //環境変数ファイルよりAPIエンドポイントセット
-  // const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const BASE_URL = "http://cocktify.us-east-1.elasticbeanstalk.com"
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchData = async () => {

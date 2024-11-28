@@ -148,7 +148,7 @@ export const CocktailDetail = () => {
       } catch (err) {
         console.log(err.response.status);
         if (err.response.status === 500) {
-          //setAiComments("...すみません聞き取れませんでした");
+          setAiComments("...すみません聞き取れませんでした");
         } else {
           console.error("setAiComment 関連でエラーが発生", err);
         }
@@ -297,7 +297,7 @@ export const CocktailDetail = () => {
                 src={cocktails[0].strDrinkThumb}
                 alt="Cocktail"
                 className="detail-cocktail-image"
-                style={{ borderRadius: "8px" }}
+                style={{ borderRadius: "8px", boxShadow: '10px 10px 15px rgba(0, 0, 0, 0.5)', }}
                 onMouseDown={handleLongPressStart}
                 onMouseUp={handleLongPressEnd}
                 onTouchStart={handleLongPressStart}

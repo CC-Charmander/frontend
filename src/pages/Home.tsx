@@ -22,13 +22,6 @@ import axios from "axios";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-interface MyCardProps {
-  title: string;
-  description: string;
-  opacity: number; // 透明度のプロパティ
-}
-
-
 export type Cocktail = {
   idDrink: string;
   strDrink: string;

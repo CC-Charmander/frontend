@@ -149,12 +149,12 @@ export const CocktailDetail = () => {
     const fetchData = async () => {
       try {
         //const module = await import("../assets/data/cocktails_jp.json");
-        const test = await axios.get(`${BASE_URL}/recipes`, {
+        const response = await axios.get(`${BASE_URL}/recipes`, {
           params: {
             cocktailId: cocktailId,
           },
         });
-        const data = test.data;
+        const data = response.data;
 
         if (Array.isArray(data)) {
           setCocktails(data); // 配列ならそのまま設定

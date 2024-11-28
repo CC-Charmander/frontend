@@ -11,8 +11,8 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 //環境変数ファイルよりAPIエンドポイントセット
-const BASE_URL = "http://cocktify.us-east-1.elasticbeanstalk.com"
-// const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const REC_BASE_URL = import.meta.env.VITE_REC_API_BASE_URL;
 
 // src/routes/Home.js
 export const CocktailDetail = () => {

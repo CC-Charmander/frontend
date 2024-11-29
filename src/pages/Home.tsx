@@ -218,12 +218,12 @@ export const Home = () => {
           </IconButton>
         </Paper>
       </header>
-      <Box sx={{ width: "100vw", padding: 2 }}>
+      <Box sx={{ padding: 2 }}>
         {cocktails === null ? (
           <CircularProgress />
         ) : (
           <>
-            <ImageList cols={2} sx={{ marginTop: "84px" }}>
+            <ImageList cols={2} sx={{ marginTop: "84px", width: "100%" }} gap={10}>
               {filteredCocktails !== null && filteredCocktails.length > 0 ? (
                 filteredCocktails.map((cocktail) => {
                   // 画像のキャッシュを確認し、localStorageに保存されている画像URLを利用
@@ -330,6 +330,7 @@ export const Home = () => {
           zIndex: 1200, // 必要に応じて、他のコンテンツより上に配置
         }}
         onClick={postCocktail}
+        color="secondary"
       >
         <AddIcon />
       </Fab>

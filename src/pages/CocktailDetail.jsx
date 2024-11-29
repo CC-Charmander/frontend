@@ -410,7 +410,7 @@ export const CocktailDetail = () => {
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
               <div
                 className="ingredients"
-                // style={{ display: "flex", alignItems: "center" }}
+                style={{ minHeight: "220px" }}
               >
                 <h2 className="AI-title">バーテンダーから一言</h2>
                 {/* 1列目: 画像 */}
@@ -426,6 +426,8 @@ export const CocktailDetail = () => {
                         objectFit: "cover", // 画像が枠内に収まるように調整
                         float: "right",
                         marginTop: "16px",
+                        marginRight: "-16px",
+                        marginLeft: "5px"
                       }}
                     />
                   </div>

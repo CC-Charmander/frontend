@@ -517,6 +517,7 @@ export const PostCocktail = () => {
           bottom: 0,
           left: 0,
           width: "100%",
+          height: "100px",
           zIndex: 1200, // 必要に応じて調整 (AppBarなどと重ならないように)
           padding: 2,
           borderRadius: 0,

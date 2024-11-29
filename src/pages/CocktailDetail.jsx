@@ -403,7 +403,7 @@ export const CocktailDetail = () => {
               
               <div
                 className="ingredients"
-                // style={{ display: "flex", alignItems: "center" }}
+                style={{ minHeight: "220px" }}
               >
                 <h2 className="AI-title">バーテンダーから一言</h2>
                 {/* 1列目: 画像 */}
@@ -418,7 +418,9 @@ export const CocktailDetail = () => {
                         borderRadius: "15%", // 円形にする場合
                         objectFit: "cover", // 画像が枠内に収まるように調整
                         float: "right",
-                        marginTop: "16px"
+                        marginTop: "16px",
+                        marginRight: "-16px",
+                        marginLeft: "5px"
                       }}
                     />
                   </div>

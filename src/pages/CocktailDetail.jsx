@@ -4,12 +4,12 @@ import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { styled } from "@mui/material/styles";
 import axios from "axios";
 
 import { useParams } from "react-router-dom";
-import { AppBar, Box, Paper, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, CircularProgress, Paper, Toolbar, Typography } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -132,14 +132,11 @@ export const CocktailDetail = () => {
           const reqData = JSON.stringify(cocktail[0].ingredients);
 
           //console.log(`${REC_BASE_URL}/snack`)
-          const getRes = await axios.get(
-            `https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`,
-            {
-              params: {
-                ingredients: reqData,
-              },
-            }
-          );
+          const getRes = await axios.get(`https://jlz4scm3x1.execute-api.us-east-1.amazonaws.com/dev/api/snack`, {
+            params: {
+              ingredients: reqData,
+            },
+          });
 
           // ↓バーテンダーコメントをセット
           localStorage.setItem(casheName, getRes.data);
@@ -158,8 +155,8 @@ export const CocktailDetail = () => {
 
   // 材料のTooltipをOpen/Closeするための関数
   const handleTooltip = () => {
-    setTooltipOpen((prev) => !prev)
-  }
+    setTooltipOpen((prev) => !prev);
+  };
 
   // 材料のTooltipサイズを設定
   const CustomWidthTooltip = styled(({ className, ...props }) => (
@@ -266,38 +263,40 @@ export const CocktailDetail = () => {
 
   return (
     <>
-      {cocktail.length === 0 ? (
-        <p style={{ marginLeft: "30px" }}>対応するカクテルはありません。</p>
-      ) : (
-        <div>
-          <AppBar
-            sx={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              width: "100%",
-              zIndex: 1200, // 必要に応じて調整 (AppBarなどと重ならないように)
-            }}
-          >
-            <Toolbar sx={{ width: "100%" }}>
-              <IconButton onClick={() => navigate("/")}>
-                <ArrowBackIcon />
-              </IconButton>
-              <Box flexGrow={1} textAlign="center" marginRight="56px">
-                <Typography>
-                  {/* {cocktail[0].strDrink} */}
-                  カクテルの詳細
-                </Typography>
-              </Box>
-            </Toolbar>
-          </AppBar>
+      <div>
+        <AppBar
+          sx={{
+            position: "fixed",
+            top: 0,
+            right: 0,
+            width: "100%",
+            zIndex: 1200, // 必要に応じて調整 (AppBarなどと重ならないように)
+          }}
+        >
+          <Toolbar sx={{ width: "100%" }}>
+            <IconButton onClick={() => navigate("/")}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Box flexGrow={1} textAlign="center" marginRight="56px">
+              <Typography>
+                {/* {cocktail[0].strDrink} */}
+                カクテルの詳細
+              </Typography>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        {cocktail.length === 0 ? (
+          <Box height="100vh" width="100vw" display="flex" justifyContent="center" alignItems="center">
+            <CircularProgress />
+          </Box>
+        ) : (
           <Box padding={2} marginTop={10}>
             <div style={{ position: "relative" }}>
               <img
                 src={cocktails[0].strDrinkThumb}
                 alt="Cocktail"
                 className="detail-cocktail-image"
-                style={{ borderRadius: "8px", boxShadow: '10px 10px 15px rgba(0, 0, 0, 0.5)', }}
+                style={{ borderRadius: "8px", boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.5)" }}
                 onMouseDown={handleLongPressStart}
                 onMouseUp={handleLongPressEnd}
                 onTouchStart={handleLongPressStart}
@@ -327,11 +326,7 @@ export const CocktailDetail = () => {
                   }}
                 />
               </IconButton>
-              <span
-                style={{ fontSize: "1.2rem", marginLeft: "0px", color: "#555" }}
-              >
-                {likeCount}
-              </span>
+              <span style={{ fontSize: "1.2rem", marginLeft: "0px", color: "#555" }}>{likeCount}</span>
               <IconButton onClick={handleClick}>
                 <CheckCircleIcon
                   sx={{
@@ -345,27 +340,40 @@ export const CocktailDetail = () => {
               <div className="ingredients">
                 <div className="ingredients-title">
                   <h2>材料</h2>
-                  <CustomWidthTooltip 
+                  <CustomWidthTooltip
                     title={
-                      <div style={{ display: 'grid', gridTemplateColumns: '0.6fr 1fr', gap: '8px' }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "0.6fr 1fr", gap: "8px" }}>
                         <Typography>
-                          dash: 一滴<br />
-                          splash: 数滴<br />
-                          tsp: 約5ml<br />
-                          oz: 約30ml<br />
-                          jigger: 約45ml<br />
-                          shot: 約45ml<br />
-                          gr: グラム<br />
-                          ml: ミリリットル<br />
+                          dash: 一滴
+                          <br />
+                          splash: 数滴
+                          <br />
+                          tsp: 約5ml
+                          <br />
+                          oz: 約30ml
+                          <br />
+                          jigger: 約45ml
+                          <br />
+                          shot: 約45ml
+                          <br />
+                          gr: グラム
+                          <br />
+                          ml: ミリリットル
+                          <br />
                         </Typography>
                         <Typography>
-                          cubes: 立方体の氷<br />
-                          twist of: 皮を添えること<br />
-                          slice: スライスして添えること
-                          bottle: ボトル<br />
-                          part: 材料の比率<br />
-                          Fill with: 飲料で満たすこと<br />
-                          Top it up with: 満たすこと<br />
+                          cubes: 立方体の氷
+                          <br />
+                          twist of: 皮を添えること
+                          <br />
+                          slice: スライスして添えること bottle: ボトル
+                          <br />
+                          part: 材料の比率
+                          <br />
+                          Fill with: 飲料で満たすこと
+                          <br />
+                          Top it up with: 満たすこと
+                          <br />
                         </Typography>
                       </div>
                     }
@@ -400,7 +408,6 @@ export const CocktailDetail = () => {
               </div>
             </Paper>
             <Paper sx={{ borderRadius: "16px", padding: "14px", marginTop: 2 }}>
-              
               <div
                 className="ingredients"
                 // style={{ display: "flex", alignItems: "center" }}
@@ -418,18 +425,22 @@ export const CocktailDetail = () => {
                         borderRadius: "15%", // 円形にする場合
                         objectFit: "cover", // 画像が枠内に収まるように調整
                         float: "right",
-                        marginTop: "16px"
+                        marginTop: "16px",
                       }}
                     />
                   </div>
                 </div>
-                
+
                 {/* 2列目: タイトルとテキスト */}
                 <div style={{ flex: 1 }}>
                   {aiComments === null ? (
-                    <p style={{
-                      marginBottom: "100px"
-                    }}>考え中です・・・</p>
+                    <p
+                      style={{
+                        marginBottom: "100px",
+                      }}
+                    >
+                      考え中です・・・
+                    </p>
                   ) : (
                     <p>{aiComments}</p>
                   )}
@@ -437,8 +448,8 @@ export const CocktailDetail = () => {
               </div>
             </Paper>
           </Box>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };

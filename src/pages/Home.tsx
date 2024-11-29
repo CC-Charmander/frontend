@@ -172,24 +172,27 @@ export const Home = () => {
           </IconButton>
         </Paper>
       </header>
-      <Box sx={{ width: "100vw", padding: 2 }}>
+      <Box sx={{ padding: 2 }}>
         {cocktails === null ? (
           <CircularProgress />
         ) : (
           <>
-            <ImageList cols={2} sx={{ marginTop: "84px" }}>
+            <ImageList cols={2} sx={{ marginTop: "84px", width: "100%" }} gap={10}>
               {filteredCocktails !== null && filteredCocktails.length > 0 ? (
                 filteredCocktails.map((cocktail) => (
-                    <Card sx={{ maxWidth: "100%", opacity: 1, margin: '5px', width: "100%",
+                  <Card
+                    sx={{
+                      opacity: 1,
                       cursor: "pointer", // ポインタを指カーソルに変更
                       "&:hover": {
                         opacity: 0.8,
-                         // ホバー時に視覚効果を追加（任意）
-                      }, }}>
+                        // ホバー時に視覚効果を追加（任意）
+                      },
+                    }}
+                  >
                     <ImageListItem
                       key={cocktail.idDrink}
                       sx={{
-                        width: "45.5vw",
                         cursor: "pointer", // ポインタを指カーソルに変更
                         "&:hover": {
                           opacity: 0.8, // ホバー時に視覚効果を追加（任意）
@@ -201,7 +204,11 @@ export const Home = () => {
                         src={cocktail.strDrinkThumb || ""}
                         loading="lazy"
                         alt={cocktail.strDrink}
-                        style={{ borderRadius: "6px", width: "auto", margin: "10px", boxShadow: '10px 10px 15px rgba(0, 0, 0, 0.5)', }}
+                        style={{
+                          borderRadius: "6px",
+                          width: "auto",
+                          margin: "10px",
+                        }}
                       />
                       {createdCocktailsSet.has(parseInt(cocktail.idDrink)) && (
                         <div
@@ -210,7 +217,7 @@ export const Home = () => {
                             top: 0,
                             left: 0,
                             width: "100%",
-                            height: "calc(100% - 54px)",
+                            height: "calc(100% - 42px)",
                             display: "flex",
                             alignItems: "flex-end", // 下に揃える
                             justifyContent: "flex-end", // 右に揃える
@@ -219,22 +226,27 @@ export const Home = () => {
                             fontWeight: "bold",
                             textShadow: "0 0 5px black",
                             backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            borderRadius: "6px",
+                            borderRadius: "6px 6px 0px 0px",
+
                             padding: "10px", // アイコンに余白を追加
                           }}
                         >
                           <CheckCircleIcon /> {/* 必要に応じてアイコンサイズを変更 */}
                         </div>
                       )}
-                      <ImageListItemBar title={cocktail.strDrink} position="below"         sx={{
-          textAlign: 'center', // これでタイトルを中央揃え
-          justifyContent: 'center', // さらに、タイトル全体を中央に配置
-          backgroundColor: 'rgba(30, 36, 42, 0.8)', // 背景の透明度を少し変更（必要に応じて）
-          color: 'white',
-          fontSize: '10px' // タイトルの文字色を変更（必要に応じて）
-        }} />
+                      <ImageListItemBar
+                        title={cocktail.strDrink}
+                        position="below"
+                        sx={{
+                          textAlign: "center", // これでタイトルを中央揃え
+                          justifyContent: "center", // さらに、タイトル全体を中央に配置
+                          backgroundColor: "rgba(30, 36, 42, 0.8)", // 背景の透明度を少し変更（必要に応じて）
+                          color: "white", // タイトルの文字色を変更（必要に応じて）
+                          padding: "0 12px",
+                        }}
+                      />
                     </ImageListItem>
-                    </Card>
+                  </Card>
                 ))
               ) : (
                 <p>カクテルが見つかりません。</p>

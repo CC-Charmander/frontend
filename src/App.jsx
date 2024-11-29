@@ -15,9 +15,37 @@ const darkTheme = createTheme({
       default: "#181F27", // 全体の背景色
       paper: "#181F27", // headerおよび材料とバーテンダーコメントの箇所
     },
+    secondary: {
+      main: "#C15F50",
+      dark: "#C15F50",
+      light: "#C15F50",
+    },
     // text: {
     //   primary: "#ecf0f1",  // 全ての文字色
     // },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#C15F50", // フォーカス時のボーダー色
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focused": {
+            color: "#C15F50", // フォーカス時の色
+          },
+          "&.MuiInputLabel-shrink": {
+            color: "#C15F50", // 縮んだ時の色
+          },
+        },
+      },
+    },
   },
   typography: {
     // fontFamily: "Lobster", // 比較的普通のフォント
@@ -33,7 +61,7 @@ const darkTheme = createTheme({
     // fontFamily: "Shippori Mincho B1, serif", // 候補
     // fontFamily: "Kosugi Maru, sans-serif", // 丸い
     // fontFamily: "BIZ UDGothic, sans-serif", // ない
-    // fontFamily: "Zen Old Mincho, serif", // 
+    // fontFamily: "Zen Old Mincho, serif", //
     fontFamily: "Noto Sans JP, sans-serif",
     // fontFamily: "Sawarabi Gothic, sans-serif",
 
@@ -46,7 +74,7 @@ const darkTheme = createTheme({
     // fontFamily: "'M PLUS 1p', sans-serif",
     // fontFamily: "'Kosugi Maru', sans-serif",
     // fontFamily: "'Dancing Script', cursive", // 手書き風のフォント
-  }
+  },
 });
 
 function App() {

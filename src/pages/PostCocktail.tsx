@@ -28,6 +28,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 
+// @ts-ignore
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const bucketName = "cocktify-images";
@@ -111,9 +112,7 @@ const measures = [
 export const PostCocktail = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbarの表示状態
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Snackbarに表示するメッセージ
-  const [confirmAction, setConfirmAction] = useState<
-    "none" | "submit" | "cancel"
-  >("none"); // ユーザーアクションの管理
+  const [confirmAction, setConfirmAction] = useState<"none" | "submit" | "cancel">("none"); // ユーザーアクションの管理
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false); // 投稿完了スナックバー
 
   const [ingredientError, setIngredientError] = useState<string | null>(null);
@@ -122,9 +121,7 @@ export const PostCocktail = () => {
 
   // ボタンを押したときのバリデーション
   const [titleError, setTitleError] = useState<string | null>(null);
-  const [txIngredientError, setTxIngredientError] = useState<string | null>(
-    null
-  );
+  const [txIngredientError, setTxIngredientError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
 
   const [inputTitle, setInputTitle] = useState<string>("");
@@ -203,10 +200,7 @@ export const PostCocktail = () => {
     if (titleError) setTitleError(null);
   };
 
-  const handleInputIngredientChange = (
-    event: React.ChangeEvent<{}>,
-    newValue: string
-  ) => {
+  const handleInputIngredientChange = (event: React.ChangeEvent<{}>, newValue: string) => {
     setInputIngredient(newValue);
     if (txIngredientError) setTxIngredientError(null); // txIngredientErrorをリセット
   };
@@ -421,12 +415,7 @@ export const PostCocktail = () => {
               options={ingredients}
               sx={{ flex: 1 }}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="原材料"
-                  error={!!ingredientError}
-                  helperText={ingredientError}
-                />
+                <TextField {...params} placeholder="原材料" error={!!ingredientError} helperText={ingredientError} />
               )}
             />
           </Stack>
@@ -461,12 +450,7 @@ export const PostCocktail = () => {
                 },
               }}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="単位"
-                  error={!!unitError}
-                  helperText={unitError}
-                />
+                <TextField {...params} placeholder="単位" error={!!unitError} helperText={unitError} />
               )}
             />
           </Stack>
@@ -570,16 +554,9 @@ export const PostCocktail = () => {
           }}
         >
           <>
-            <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
-              {snackbarMessage}
-            </Box>
+            <Box sx={{ textAlign: "center", paddingBottom: 1 }}>{snackbarMessage}</Box>
             <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-              <Button
-                color="inherit"
-                size="small"
-                onClick={postCocktail}
-                sx={{ flex: 1 }}
-              >
+              <Button color="inherit" size="small" onClick={postCocktail} sx={{ flex: 1 }}>
                 OK
               </Button>
               <Button
@@ -619,9 +596,7 @@ export const PostCocktail = () => {
           }}
         >
           {/* 投稿完了メッセージ */}
-          <Box sx={{ textAlign: "center", paddingBottom: 1 }}>
-            カクテルの投稿が完了しました！
-          </Box>
+          <Box sx={{ textAlign: "center", paddingBottom: 1 }}>カクテルの投稿が完了しました！</Box>
         </Alert>
       </Snackbar>
     </div>

@@ -263,6 +263,7 @@ export const Home = () => {
           zIndex: 1200, // 必要に応じて、他のコンテンツより上に配置
         }}
         onClick={postCocktail}
+        color="secondary"
       >
         <AddIcon />
       </Fab>

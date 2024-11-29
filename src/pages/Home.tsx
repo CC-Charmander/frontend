@@ -172,7 +172,7 @@ export const Home = () => {
           </IconButton>
         </Paper>
       </header>
-      <Box sx={{ width: "100vw", padding: 2 }}>
+      <Box sx={{ padding: 2 }}>
         {cocktails === null ? (
           <CircularProgress />
         ) : (
@@ -182,9 +182,7 @@ export const Home = () => {
                 filteredCocktails.map((cocktail) => (
                   <Card
                     sx={{
-                      maxWidth: "100%",
                       opacity: 1,
-                      width: "100%",
                       cursor: "pointer", // ポインタを指カーソルに変更
                       "&:hover": {
                         opacity: 0.8,
